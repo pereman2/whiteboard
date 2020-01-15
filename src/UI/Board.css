@@ -1,0 +1,7 @@
+.Board {
+    height: 900px;
+    width: 900px;
+}
+#Board {
+    background-color: brown;
+}
