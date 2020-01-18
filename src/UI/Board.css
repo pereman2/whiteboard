@@ -3,5 +3,32 @@
     width: 900px;
 }
 #Board {
-    background-color: brown;
+    background-color: transparent;
+    border-style: outset;
+    position: absolute;
+    background-image: url('../resources/background/board.png');
+    background-size: contain;
+}
+.toolbar {
+    display: flex;
+    margin: 10px;
+    width: fit-content;
+    padding: 10px;
+    border-radius: 10px;
+    flex-direction: column;
+    background-color: black;
+    position: absolute;
+}
+.toolbar > svg{
+    margin-top: 10px;
+    width: 25px;
+    max-height: 50px;
+}
+.tool {
+    fill: white;
+    stroke: white;
+    stroke-width: 5px;
+}
+#toolSelected {
+    fill: blue;
 }

@@ -1,18 +1,37 @@
 import React from 'react';
 import './Board.css';
+import brush from '../resources/svgs/Brush.svg';
+import rubber from '../resources/svgs/Rubber.svg';
+import form from '../resources/svgs/Form.svg';
+
+var brushConfig = {
+    width: 12,
+    color: 'black',
+
+}
+var eraserConfig = {
+    width: 12,
+    color: 'black',
+}
+
+var formConfig = {
+    type: 'rectangle',
+    width: 12,
+    color: 'black',
+}
 function getMousePos(canvas, evt) {
     return {
-      x: evt.clientX,
-      y: evt.clientY
+        x: evt.clientX,
+        y: evt.clientY
     };
 }
 
-class Board extends React.Component{
+class Board extends React.Component {
     constructor(props, context) {
         super(props, context)
         this.state = {
-          isDown: false,
-          mode: 'brush',
+            isDown: false,
+            tool: 'Brush',
         }
     }
     saveLast = (event, x, y) => {
@@ -21,13 +40,24 @@ class Board extends React.Component{
         var rect = canvas.getBoundingClientRect();
         var mouseX = x || (pos.x - rect.left);
         var mouseY = y || (pos.y - rect.top);
-        this.setState({ 
+        this.setState({
             lastX: mouseX,
             lastY: mouseY,
         });
     }
     componentDidMount() {
-        let canvas = document.querySelector('#Board');
+        console.log(brushConfig);
+        this.setState({
+            canvas: document.querySelector('#Board'),
+            lastTool: document.querySelector('#Brush')
+        });
+        document.querySelector('#Brush').style.fill = '#94d3ac';
+        this.setListeners();
+    }
+    setListeners = () => {
+        //No uso this.state.canvas porque en didmount el setstate no va
+        //hasta salir de la función.
+        var canvas = document.querySelector('#Board');
         canvas.addEventListener('mousedown', (e) => this.mouseDown(e), false);
         canvas.addEventListener('mousemove', (e) => this.mouseMove(e), false);
         canvas.addEventListener('mouseup', (e) => this.mouseUp(e), false);
@@ -35,9 +65,8 @@ class Board extends React.Component{
 
     mouseDown = event => {
         this.setState({ isDown: true });
-        let canvas = document.querySelector('#Board');
         this.setState({
-            ctx: canvas.getContext('2d'),
+            ctx: this.state.canvas.getContext('2d'),
             begin: true
         });
         this.state.ctx.beginPath();
@@ -45,48 +74,152 @@ class Board extends React.Component{
     }
 
     mouseUp = event => {
-        let canvas = document.querySelector('#Board');
-        var pos = getMousePos(canvas, event);
-        this.setState({ isDown: false });
-        //this.state.ctx.stroke();
+        var pos = getMousePos(this.state.canvas, event);
+        this.setState({
+            isDown: false,
+            begin: true,
+        });
+        if(this.state.tool == 'Form') {
+            var pos = getMousePos(this.state.canvas, event);
+            var height = pos.y - this.state.lastY;
+            var width = pos.x - this.state.lastX;
+            this.state.ctx.rect(this.state.lastX, this.state.lastY, width, height);
+            this.state.ctx.stroke();
+        }
+        this.state.ctx.globalCompositeOperation = 'source-over';
+        this.state.ctx.restore();
+        //Cierra el trazo
         this.state.ctx.closePath();
     }
 
     mouseMove = event => {
-        if(this.state.isDown) {
-            let canvas = document.querySelector('#Board');
-            var pos = getMousePos(canvas, event);
-            var rect = canvas.getBoundingClientRect();
-            var mouseX = pos.x - rect.left;
-            var mouseY = pos.y - rect.top;
-            var lastX = this.state.lastX;
-            var lastY = this.state.lastY;
-            if(this.state.begin) {
-                this.state.ctx.moveTo(mouseX, mouseY);
-                this.setState({ begin: false });
+        if (this.state.isDown) {
+            switch (this.state.tool) {
+                case 'Brush':
+                    this.brush(event);
+                    break;
+                case 'Eraser':
+                    this.erase(event);
+                    break;
+                case 'Form':
+                    this.form(event);
+                    break;
             }
-            this.state.ctx.lineTo(lastX, lastY);
-            this.state.ctx.lineJoin = 'round';
-            this.state.ctx.lineCap = 'round';
-            this.state.ctx.lineWidth = 15;
-            this.state.ctx.stroke();
-            this.saveLast(event, mouseX, mouseY);
+
         }
     }
 
     reset = event => {
-        let canvas = document.querySelector('#Board');
-        let ctx = canvas.getContext('2d');
+        let ctx = this.state.canvas.getContext('2d');
 
-        ctx.clearRect(0,0,1200,800);
+        ctx.clearRect(0, 0, 1200, 800);
+    }
+    setTool = event => {
+        this.state.lastTool.style.fill = 'white';
+        this.setState({
+            tool: event.target.id,
+            lastTool: event.target
+        });
+        event.target.style.fill = '#94d3ac';
+    }
+    form = event => {
+
+    }
+    erase = event => {
+        var pos = getMousePos(this.state.canvas, event);
+        var rect = this.state.canvas.getBoundingClientRect();
+        var mouseX = pos.x - rect.left;
+        var mouseY = pos.y - rect.top;
+        var lastX = this.state.lastX;
+        var lastY = this.state.lastY;
+
+        if (this.state.begin) {
+            this.state.ctx.moveTo(mouseX, mouseY);
+            this.setState({ begin: false });
+        }
+        this.state.ctx.lineTo(lastX, lastY);
+        this.state.ctx.globalCompositeOperation = 'destination-out';
+        //union de lineas round (mas natural)
+        this.state.ctx.lineJoin = 'round';
+        //forma de la linea
+        this.state.ctx.lineCap = 'round';
+        this.state.ctx.lineWidth = 15;
+        //dibuja lo que se ha hecho en el path
+        this.state.ctx.stroke();
+        this.saveLast(event, mouseX, mouseY);
+    }
+    //Dibuja conjunto de lineas mientras se mueva
+    brush = event => {
+        var pos = getMousePos(this.state.canvas, event);
+        var rect = this.state.canvas.getBoundingClientRect();
+        var mouseX = pos.x - rect.left;
+        var mouseY = pos.y - rect.top;
+        var lastX = this.state.lastX;
+        var lastY = this.state.lastY;
+
+        if (this.state.begin) {
+            this.state.ctx.moveTo(mouseX, mouseY);
+            this.setState({ begin: false });
+        }
+        this.state.ctx.lineTo(lastX, lastY);
+        //union de lineas round (mas natural)
+        this.state.ctx.lineJoin = 'round';
+        //forma de la linea
+        this.state.ctx.lineCap = 'round';
+        this.state.ctx.lineWidth = 15;
+        //dibuja lo que se ha hecho en el path
+        this.state.ctx.stroke();
+        this.saveLast(event, mouseX, mouseY);
     }
     render() {
         return (
             <div className="Board">
                 <canvas id="Board" height='700px' width='700px'></canvas>
-                <button onClick={(e) => this.reset(e)}>Reset</button>
+                <div className='toolbar'>
+                    <svg onClick={(e) => { this.setTool(e); }} id='Brush' width="42" height="215" viewBox="0 0 42 215" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g filter="url(#filter0_d)">
+                            <path id='Brush' className='tool' d="M5 206V49L21 2L37 49V206H5Z" stroke="black" />
+                        </g>
+                        <defs>
+                            <filter id="filter0_d" x="0.5" y="0.448471" width="41" height="214.052" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
+                                <feOffset dy="4" />
+                                <feGaussianBlur stdDeviation="2" />
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
+                            </filter>
+                        </defs>
+                    </svg>
+                    <svg onClick={(e) => { this.setTool(e); }} id='Form' width="102" height="102" viewBox="0 0 102 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path id='Form' className='tool' d="M101 1H1V101H101V1Z" stroke="black" />
+                    </svg>
+
+                    <svg onClick={(e) => { this.setTool(e); }} id='Eraser' width="91" height="179" viewBox="0 0 91 179" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g filter="url(#filter0_i)">
+                            <path id='Eraser' className='tool' d="M1 118V24C47 -27 90 24 90 24V118M1 118V154C45.5 207 90 154 90 154V118M1 118H90" stroke="black" />
+                        </g>
+                        <defs>
+                            <filter id="filter0_i" x="0.5" y="0.833313" width="90" height="181.222" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                                <feOffset dy="4" />
+                                <feGaussianBlur stdDeviation="2" />
+                                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                                <feBlend mode="normal" in2="shape" result="effect1_innerShadow" />
+                            </filter>
+                        </defs>
+                    </svg>
+
+                    <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path id='removeall' className='tool' onClick={(e) => { this.reset(e) }} d="M1 1L51 51M1 51L51 1" stroke="black" />
+                    </svg>
+                </div>
             </div>
-            
+
         );
     }
 }
