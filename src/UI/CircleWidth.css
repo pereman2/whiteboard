@@ -1,0 +1,16 @@
+.brush-circle {
+    border-radius: 50px;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(0,0,0,1) 100%);
+    cursor: n-resize; 
+    text-align: center;
+}
+.width-circle {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none; 
+    color: white;
+}

@@ -3,6 +3,7 @@ import './Board.css';
 import brush from '../resources/svgs/Brush.svg';
 import rubber from '../resources/svgs/Rubber.svg';
 import form from '../resources/svgs/Form.svg';
+import CircleWidth from './CircleWidth';
 
 var brushConfig = {
     width: 12,
@@ -25,6 +26,11 @@ function getMousePos(canvas, evt) {
         y: evt.clientY
     };
 }
+function moveLinearGradient(to) {
+    var linear = 'background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(0,0,0,1) ' 
+                + to + '%)'; 
+    return linear;
+}
 
 class Board extends React.Component {
     constructor(props, context) {
@@ -32,6 +38,16 @@ class Board extends React.Component {
         this.state = {
             isDown: false,
             tool: 'Brush',
+        }
+    }
+    setConfig = () => {
+        switch (this.state.tool) {
+            case 'Brush':
+                break;
+            case 'Eraser':
+                break;
+            case 'Form':
+                break;
         }
     }
     saveLast = (event, x, y) => {
@@ -52,6 +68,10 @@ class Board extends React.Component {
             lastTool: document.querySelector('#Brush')
         });
         document.querySelector('#Brush').style.fill = '#94d3ac';
+        var toolbar = document.querySelector('.toolbar');
+        document.querySelector('.brush-config').style.height = toolbar.offsetHeight + 'px';
+        //document.querySelector('.brush-config').style.width = toolbar.offsetWidth + 'px';
+        console.log(toolbar.offsetHeight)
         this.setListeners();
     }
     setListeners = () => {
@@ -79,7 +99,7 @@ class Board extends React.Component {
             isDown: false,
             begin: true,
         });
-        if(this.state.tool == 'Form') {
+        if (this.state.tool == 'Form') {
             var pos = getMousePos(this.state.canvas, event);
             var height = pos.y - this.state.lastY;
             var width = pos.x - this.state.lastX;
@@ -112,15 +132,16 @@ class Board extends React.Component {
     reset = event => {
         let ctx = this.state.canvas.getContext('2d');
 
-        ctx.clearRect(0, 0, 1200, 800);
+        ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
     }
-    setTool = event => {
+    setTool = (event, tool) => {
         this.state.lastTool.style.fill = 'white';
         this.setState({
-            tool: event.target.id,
-            lastTool: event.target
+            tool: tool,
+            lastTool: document.querySelector('#' + tool)
+
         });
-        event.target.style.fill = '#94d3ac';
+        document.querySelector('#' + tool).style.fill = '#94d3ac';
     }
     form = event => {
 
@@ -174,49 +195,59 @@ class Board extends React.Component {
     render() {
         return (
             <div className="Board">
-                <canvas id="Board" height='700px' width='700px'></canvas>
+                <canvas id="Board" height='800px' width='1500px'></canvas>
+                <div className='brush-config'>
+                    <CircleWidth/>
+                </div>
                 <div className='toolbar'>
-                    <svg onClick={(e) => { this.setTool(e); }} id='Brush' width="42" height="215" viewBox="0 0 42 215" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g filter="url(#filter0_d)">
-                            <path id='Brush' className='tool' d="M5 206V49L21 2L37 49V206H5Z" stroke="black" />
-                        </g>
-                        <defs>
-                            <filter id="filter0_d" x="0.5" y="0.448471" width="41" height="214.052" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                                <feOffset dy="4" />
-                                <feGaussianBlur stdDeviation="2" />
-                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
-                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
-                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
-                            </filter>
-                        </defs>
-                    </svg>
-                    <svg onClick={(e) => { this.setTool(e); }} id='Form' width="102" height="102" viewBox="0 0 102 102" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path id='Form' className='tool' d="M101 1H1V101H101V1Z" stroke="black" />
-                    </svg>
+                    <button onClick={(e) => { this.setTool(e, 'Brush'); }}>
+                        <svg width="42" height="215" viewBox="0 0 42 215" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g filter="url(#filter0_d)">
+                                <path id='Brush' className='tool' d="M5 206V49L21 2L37 49V206H5Z" stroke="black" />
+                            </g>
+                            <defs>
+                                <filter id="filter0_d" x="0.5" y="0.448471" width="41" height="214.052" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
+                                    <feOffset dy="4" />
+                                    <feGaussianBlur stdDeviation="2" />
+                                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
+                                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
+                                </filter>
+                            </defs>
+                        </svg>
+                    </button>
+                    <button onClick={(e) => { this.setTool(e, 'Form'); }}>
+                        <svg width="102" height="102" viewBox="0 0 102 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path id='Form' className='tool' d="M101 1H1V101H101V1Z" stroke="black" />
+                        </svg>
+                    </button>
 
-                    <svg onClick={(e) => { this.setTool(e); }} id='Eraser' width="91" height="179" viewBox="0 0 91 179" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g filter="url(#filter0_i)">
-                            <path id='Eraser' className='tool' d="M1 118V24C47 -27 90 24 90 24V118M1 118V154C45.5 207 90 154 90 154V118M1 118H90" stroke="black" />
-                        </g>
-                        <defs>
-                            <filter id="filter0_i" x="0.5" y="0.833313" width="90" height="181.222" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
-                                <feOffset dy="4" />
-                                <feGaussianBlur stdDeviation="2" />
-                                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
-                                <feBlend mode="normal" in2="shape" result="effect1_innerShadow" />
-                            </filter>
-                        </defs>
-                    </svg>
-
-                    <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path id='removeall' className='tool' onClick={(e) => { this.reset(e) }} d="M1 1L51 51M1 51L51 1" stroke="black" />
-                    </svg>
+                    <button onClick={(e) => { this.setTool(e, 'Eraser'); }}>
+                        <svg width="91" height="179" viewBox="0 0 91 179" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g filter="url(#filter0_i)">
+                                <path id='Eraser' className='tool' d="M1 118V24C47 -27 90 24 90 24V118M1 118V154C45.5 207 90 154 90 154V118M1 118H90" stroke="black" />
+                            </g>
+                            <defs>
+                                <filter id="filter0_i" x="0.5" y="0.833313" width="90" height="181.222" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                    <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                                    <feOffset dy="4" />
+                                    <feGaussianBlur stdDeviation="2" />
+                                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+                                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                                    <feBlend mode="normal" in2="shape" result="effect1_innerShadow" />
+                                </filter>
+                            </defs>
+                        </svg>
+                    </button>
+                    <button onClick={(e) => { this.reset(e) }}>
+                        <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path id='removeall' className='tool' d="M1 1L51 51M1 51L51 1" stroke="black" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
