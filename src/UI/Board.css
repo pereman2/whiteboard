@@ -18,7 +18,7 @@
     background-color: black;
     position: absolute;
 }
-.brush-config {
+.config {
     border-style: solid;
     border-color: silver;
     background-color: rgba(192, 192, 192, 0.418);
@@ -36,11 +36,22 @@ svg{
     width: 20px;
     max-height: 50px;
 }
-.toolbar > button {
+button {
     background-color: black;
     border-style: none;
 }
 .tool {
     stroke: white;
     stroke-width: 5px;
+}
+.tool-container {
+    display: flex;
+    align-items: center;
+}
+.toolarrow {
+    width: 10px;
+    height: 10px;
+}
+.toolarrow:hover {
+    transform: translateX(3px);
 }

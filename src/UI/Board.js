@@ -5,6 +5,8 @@ import rubber from '../resources/svgs/Rubber.svg';
 import form from '../resources/svgs/Form.svg';
 import CircleWidth from './CircleWidth';
 import ColorPicker from './ColorPicker';
+import arrow from '../resources/background/Arrowwhite.png';
+
 var brushConfig = {
     width: 12,
     color: 'black',
@@ -63,16 +65,14 @@ class Board extends React.Component {
         });
     }
     componentDidMount() {
-        console.log(brushConfig);
         this.setState({
             canvas: document.querySelector('#Board'),
             lastTool: document.querySelector('#Brush'),
         });
         document.querySelector('#Brush').style.stroke = '#94d3ac';
         var toolbar = document.querySelector('.toolbar');
-        document.querySelector('.brush-config').style.height = toolbar.offsetHeight + 'px';
-        //document.querySelector('.brush-config').style.width = toolbar.offsetWidth + 'px';
-        console.log(toolbar.offsetHeight)
+        document.querySelector('.config').style.height = toolbar.offsetHeight + 'px';
+        this.hideConfig();
         this.setListeners();
     }
     setListeners = () => {
@@ -85,6 +85,7 @@ class Board extends React.Component {
     }
 
     mouseDown = event => {
+        this.hideConfig();
         this.setState({ isDown: true });
         this.setState({
             ctx: this.state.canvas.getContext('2d'),
@@ -214,43 +215,90 @@ class Board extends React.Component {
         }
 
     }
+    hideConfig = () => {
+        var configs = document.querySelectorAll('.config');
+        configs.forEach(element => {
+           element.style.display = 'none'; 
+        });
+    }
+    /**
+     * Handler evento cuando se hace click a la flecha para abrir opciones de una
+     * herramienta
+     * @param {event} event
+     */
+    handleArrowOpen = event => {
+        this.hideConfig();
+        switch (event.target.id) {
+            case 'brush-arrow':
+                var config = document.querySelector('#brush-config');
+                config.style.display = 'inherit';
+                break;
+            case 'eraser-arrow':
+                var config = document.querySelector('#eraser-config');
+                config.style.display = 'inherit';
+                break;
+            case 'form-arrow':
+                var config = document.querySelector('#form-config');
+                config.style.display = 'inherit';
+                break;
+        }
+
+    }
     render() {
         return (
             <div className="Board">
                 <canvas id="Board" height='800px' width='1500px'></canvas>
-                <div className='brush-config'>
+                <div id='brush-config' className='config'>
+                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
+                        width={this.state.brush.width}
+                    />
+                    <ColorPicker onColorChange={(color) => {this.handleColorChange(color);}} />
+                </div>
+                <div id='form-config' className='config'>
+                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
+                        width={this.state.brush.width}
+                    />
+                    <ColorPicker onColorChange={(color) => {this.handleColorChange(color);}} />
+                </div>
+                <div id='eraser-config' className='config'>
                     <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
                         width={this.state.brush.width}
                     />
                     <ColorPicker onColorChange={(color) => {this.handleColorChange(color);}} />
                 </div>
                 <div className='toolbar'>
-                    <button onClick={(e) => { this.setTool(e, 'Brush'); }}>
-                        <svg width="42" height="215" viewBox="0 0 42 215" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g filter="url(#filter0_d)">
-                                <path id='Brush' className='tool' d="M5 206V49L21 2L37 49V206H5Z" stroke="black" />
-                            </g>
-                            <defs>
-                                <filter id="filter0_d" x="0.5" y="0.448471" width="41" height="214.052" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                                    <feOffset dy="4" />
-                                    <feGaussianBlur stdDeviation="2" />
-                                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
-                                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
-                                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
-                                </filter>
-                            </defs>
-                        </svg>
-                    </button>
-                    <button onClick={(e) => { this.setTool(e, 'Form'); }}>
-                        <svg width="102" height="102" viewBox="0 0 102 102" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path id='Form' className='tool' d="M101 1H1V101H101V1Z" stroke="black" />
-                        </svg>
-                    </button>
+                    <div className='tool-container'>
+                        <button onClick={(e) => { this.setTool(e, 'Brush'); }}>
+                            <svg width="42" height="215" viewBox="0 0 42 215" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g filter="url(#filter0_d)">
+                                    <path id='Brush' className='tool' d="M5 206V49L21 2L37 49V206H5Z" stroke="black" />
+                                </g>
+                                <defs>
+                                    <filter id="filter0_d" x="0.5" y="0.448471" width="41" height="214.052" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
+                                        <feOffset dy="4" />
+                                        <feGaussianBlur stdDeviation="2" />
+                                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
+                                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
+                                    </filter>
+                                </defs>
+                            </svg>
+                        </button>
+                        <img src={arrow} onClick={(e) => { this.handleArrowOpen(e); }} className='toolarrow' id='brush-arrow'></img>
+                    </div>
+                    <div className='tool-container'>
+                        <button onClick={(e) => { this.setTool(e, 'Form'); }}>
+                            <svg width="102" height="102" viewBox="0 0 102 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path id='Form' className='tool' d="M101 1H1V101H101V1Z" stroke="black" />
+                            </svg>
+                        </button>
+                        <img src={arrow} onClick={(e) => { this.handleArrowOpen(e); }} className='toolarrow' id='form-arrow'></img>
+                    </div>
 
-                    <button onClick={(e) => { this.setTool(e, 'Eraser'); }}>
-                        <svg width="91" height="179" viewBox="0 0 91 179" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div className='tool-container'>
+                        <button onClick={(e) => { this.setTool(e, 'Eraser'); }}> <svg width="91" height="179" viewBox="0 0 91 179" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g filter="url(#filter0_i)">
                                 <path id='Eraser' className='tool' d="M1 118V24C47 -27 90 24 90 24V118M1 118V154C45.5 207 90 154 90 154V118M1 118H90" stroke="black" />
                             </g>
@@ -267,12 +315,16 @@ class Board extends React.Component {
                                 </filter>
                             </defs>
                         </svg>
-                    </button>
-                    <button onClick={(e) => { this.reset(e) }}>
-                        <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path id='removeall' className='tool' d="M1 1L51 51M1 51L51 1" stroke="black" />
-                        </svg>
-                    </button>
+                        </button>
+                        <img src={arrow} onClick={(e) => { this.handleArrowOpen(e); }} className='toolarrow' id='eraser-arrow'></img>
+                    </div>
+                    <div className='tool-container'>
+                        <button onClick={(e) => { this.reset(e) }}>
+                            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path id='removeall' className='tool' d="M1 1L51 51M1 51L51 1" stroke="black" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
