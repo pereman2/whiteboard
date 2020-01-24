@@ -11,36 +11,36 @@
 }
 .toolbar {
     display: flex;
-    margin: 10px;
     width: fit-content;
+    height: 100%;
     padding: 10px;
-    border-radius: 10px;
     flex-direction: column;
-    background-color: white;
+    background-color: black;
     position: absolute;
 }
 .brush-config {
+    border-style: solid;
+    border-color: silver;
+    background-color: rgba(192, 192, 192, 0.418);
+    border-width: 5px;
     width: fit-content;
     padding: 10px;
-    margin: 10px;
-    margin-left: 80px;
-    border-radius: 10px;
+    margin-left: 60px;
     position: absolute;
-    background-color: silver;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 svg{
     margin-top: 10px;
-    width: 25px;
+    width: 20px;
     max-height: 50px;
 }
 .toolbar > button {
     background-color: black;
+    border-style: none;
 }
 .tool {
-    fill: white;
     stroke: white;
     stroke-width: 5px;
 }

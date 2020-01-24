@@ -16,7 +16,7 @@ function moveLinearGradient(to) {
 class CircleWidth extends React.Component {
     constructor(props, context) { super(props, context)
         this.state = {
-            width: 12,
+            width: this.props.width,
         }
     }
     saveWidth = event => {
@@ -25,14 +25,17 @@ class CircleWidth extends React.Component {
                 var pixels = document.querySelector('.width-circle');
                 pixels.contentEditable = 'false';
                 var newWidth = parseInt(pixels.innerHTML, 10);
-                console.log(newWidth)
-                console.log()
                 if(!isNaN(newWidth) &&  newWidth < 100) {
                     this.setState({ width: newWidth });
+                    //Cambia el background del circulo
+                    var background = moveLinearGradient(100 - this.state.width);
+                    this.state.circle.style.background = background; 
                 }
                 pixels.innerHTML = this.state.width;
-
                 pixels.blur();
+
+                //Acciona el evento para el padre cuando cambia el valor
+                this.props.onValueChange(event);
             } catch (error) {}
 
 
@@ -82,11 +85,14 @@ class CircleWidth extends React.Component {
             if(sum < 100 && sum > 0) {
                 this.setState({ width: sum });
                 var background = moveLinearGradient(100 - sum);
-                console.log(background)
-
                 this.state.circle.style.background = background; 
+                //Evento para el padre cuando cambia el valor
+                this.onValueChange(this);
             }
         }
+    }
+    onValueChange = event => {
+        this.props.onValueChange(event);
     }
     componentDidMount() {
         var circle = document.querySelector('.brush-circle');
@@ -101,13 +107,12 @@ class CircleWidth extends React.Component {
     render() {
         return (
             <div className="CircleWidth">
-            <div className='brush-circle'>
-                <div className='width-circle'
-                    onKeyPress={(e) => { this.saveWidth(e); }}
-                    onDoubleClick={(e) => { this.editWidth(e) }}
-                    onChange={(e) => { this.valueChange(e) }}>{this.state.width}</div>
-            </div>
-
+                <div className='brush-circle'>
+                    <div className='width-circle'
+                        onKeyPress={(e) => { this.saveWidth(e); }}
+                        onDoubleClick={(e) => { this.editWidth(e) }}
+                    >{this.state.width}</div>
+                </div>
             </div>
 
         );

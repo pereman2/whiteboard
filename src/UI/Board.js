@@ -4,7 +4,7 @@ import brush from '../resources/svgs/Brush.svg';
 import rubber from '../resources/svgs/Rubber.svg';
 import form from '../resources/svgs/Form.svg';
 import CircleWidth from './CircleWidth';
-
+import ColorPicker from './ColorPicker';
 var brushConfig = {
     width: 12,
     color: 'black',
@@ -38,6 +38,7 @@ class Board extends React.Component {
         this.state = {
             isDown: false,
             tool: 'Brush',
+            brush: brushConfig
         }
     }
     setConfig = () => {
@@ -65,9 +66,9 @@ class Board extends React.Component {
         console.log(brushConfig);
         this.setState({
             canvas: document.querySelector('#Board'),
-            lastTool: document.querySelector('#Brush')
+            lastTool: document.querySelector('#Brush'),
         });
-        document.querySelector('#Brush').style.fill = '#94d3ac';
+        document.querySelector('#Brush').style.stroke = '#94d3ac';
         var toolbar = document.querySelector('.toolbar');
         document.querySelector('.brush-config').style.height = toolbar.offsetHeight + 'px';
         //document.querySelector('.brush-config').style.width = toolbar.offsetWidth + 'px';
@@ -135,13 +136,13 @@ class Board extends React.Component {
         ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
     }
     setTool = (event, tool) => {
-        this.state.lastTool.style.fill = 'white';
+        this.state.lastTool.style.stroke = 'white';
         this.setState({
             tool: tool,
             lastTool: document.querySelector('#' + tool)
 
         });
-        document.querySelector('#' + tool).style.fill = '#94d3ac';
+        document.querySelector('#' + tool).style.stroke = '#94d3ac';
     }
     form = event => {
 
@@ -187,17 +188,41 @@ class Board extends React.Component {
         this.state.ctx.lineJoin = 'round';
         //forma de la linea
         this.state.ctx.lineCap = 'round';
-        this.state.ctx.lineWidth = 15;
+        this.state.ctx.lineWidth = this.state.brush.width;
         //dibuja lo que se ha hecho en el path
+        this.state.ctx.strokeStyle = this.state.brush.color;
         this.state.ctx.stroke();
         this.saveLast(event, mouseX, mouseY);
+    }
+    //Event es el objecto CircleWidth
+    handleWidthChange = event => {
+        let brush = JSON.parse(JSON.stringify(this.state.brush))
+        brush.width = event.state.width;
+        this.setState({ brush: brush });
+    }
+    handleColorChange = color => {
+        let brush = JSON.parse(JSON.stringify(this.state.brush))
+        brush.color = color.hex;
+        this.setState({ brush: brush });
+        switch (this.state.tool) {
+            case 'Brush':
+                break;
+            case 'Eraser':
+                break;
+            case 'Form':
+                break;
+        }
+
     }
     render() {
         return (
             <div className="Board">
                 <canvas id="Board" height='800px' width='1500px'></canvas>
                 <div className='brush-config'>
-                    <CircleWidth/>
+                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
+                        width={this.state.brush.width}
+                    />
+                    <ColorPicker onColorChange={(color) => {this.handleColorChange(color);}} />
                 </div>
                 <div className='toolbar'>
                     <button onClick={(e) => { this.setTool(e, 'Brush'); }}>
