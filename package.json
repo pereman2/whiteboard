@@ -4,10 +4,14 @@
   "private": true,
   "main": "UI/index.js",
   "dependencies": {
+    "@simonwep/pickr": "^1.5.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
+    "mdbreact": "^4.25.0",
+    "rc-color-picker": "^1.2.6",
     "react": "^16.12.0",
+    "react-color": "^2.18.0",
     "react-dom": "^16.12.0",
     "react-scripts": "3.3.0"
   },

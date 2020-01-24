@@ -40,19 +40,18 @@ class Board extends React.Component {
         this.state = {
             isDown: false,
             tool: 'Brush',
-            brush: brushConfig
+            brush: brushConfig,
+            eraser: eraserConfig,
+            form: formConfig,
         }
     }
-    setConfig = () => {
-        switch (this.state.tool) {
-            case 'Brush':
-                break;
-            case 'Eraser':
-                break;
-            case 'Form':
-                break;
-        }
-    }
+
+    /**
+     * Guarda el la posicion como la ultima
+     * @param {Object} event
+     * @param {Integer} x
+     * @param {Integer} y
+     */
     saveLast = (event, x, y) => {
         let canvas = document.querySelector('#Board');
         var pos = getMousePos(canvas, event);
@@ -64,6 +63,7 @@ class Board extends React.Component {
             lastY: mouseY,
         });
     }
+    //evento predeterminado cuando se inicio al componente
     componentDidMount() {
         this.setState({
             canvas: document.querySelector('#Board'),
@@ -84,6 +84,10 @@ class Board extends React.Component {
         canvas.addEventListener('mouseup', (e) => this.mouseUp(e), false);
     }
 
+    /**
+     * Manejador del evento de cuando se hace el click en el canvas
+     * @param {Object} event
+     */
     mouseDown = event => {
         this.hideConfig();
         this.setState({ isDown: true });
@@ -94,7 +98,10 @@ class Board extends React.Component {
         this.state.ctx.beginPath();
         this.saveLast(event);
     }
-
+    /**
+     * Manejador del event de cuando se suelta el click en el canvas
+     * @param {Object} event
+     */
     mouseUp = event => {
         var pos = getMousePos(this.state.canvas, event);
         this.setState({
@@ -105,6 +112,7 @@ class Board extends React.Component {
             var pos = getMousePos(this.state.canvas, event);
             var height = pos.y - this.state.lastY;
             var width = pos.x - this.state.lastX;
+            this.state.ctx.strokeStyle = this.state.form.color;
             this.state.ctx.rect(this.state.lastX, this.state.lastY, width, height);
             this.state.ctx.stroke();
         }
@@ -113,7 +121,10 @@ class Board extends React.Component {
         //Cierra el trazo
         this.state.ctx.closePath();
     }
-
+    /**
+     * Manejador del evento al moverse el cursor
+     * @param {Object} event
+     */
     mouseMove = event => {
         if (this.state.isDown) {
             switch (this.state.tool) {
@@ -130,12 +141,20 @@ class Board extends React.Component {
 
         }
     }
-
+    /**
+     * Borra el canvas completamente.
+     * @param {Object} event
+     */
     reset = event => {
         let ctx = this.state.canvas.getContext('2d');
 
         ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
     }
+    /**
+     * Establece la herramienta seleccionada
+     * @param {Object} event
+     * @param {Object} tool
+     */
     setTool = (event, tool) => {
         this.state.lastTool.style.stroke = 'white';
         this.setState({
@@ -148,6 +167,11 @@ class Board extends React.Component {
     form = event => {
 
     }
+    /**
+     * Dibuja una linea(como brush) con la propiedad destination-out en composite
+     * que crea el efecto de borrar. Sobrepone lo que hay dibujado
+     * @param {Object} event 
+     */
     erase = event => {
         var pos = getMousePos(this.state.canvas, event);
         var rect = this.state.canvas.getBoundingClientRect();
@@ -171,7 +195,10 @@ class Board extends React.Component {
         this.state.ctx.stroke();
         this.saveLast(event, mouseX, mouseY);
     }
-    //Dibuja conjunto de lineas mientras se mueva
+    /**
+     * Dibuja una linea des de la ultima posicion a la actual
+     * @param {Object} event
+     */
     brush = event => {
         var pos = getMousePos(this.state.canvas, event);
         var rect = this.state.canvas.getBoundingClientRect();
@@ -201,20 +228,26 @@ class Board extends React.Component {
         brush.width = event.state.width;
         this.setState({ brush: brush });
     }
-    handleColorChange = color => {
-        let brush = JSON.parse(JSON.stringify(this.state.brush))
-        brush.color = color.hex;
-        this.setState({ brush: brush });
-        switch (this.state.tool) {
-            case 'Brush':
-                break;
-            case 'Eraser':
-                break;
-            case 'Form':
-                break;
+    /**
+     * Cambia el color asociado a la herramienta
+     * @param {color} 
+     * @param {tool}
+     */
+    handleColorChange = (color, tool) => {
+        if(tool == 'Brush') {
+            console.log(this.state.tool)
+            let brush = JSON.parse(JSON.stringify(this.state.brush))
+            brush.color = color.hex;
+            this.setState({ brush: brush });
+        } else if(tool == 'Form') {
+            let form = JSON.parse(JSON.stringify(this.state.form))
+            form.color = color.hex;
+            this.setState({ form: form });
         }
-
     }
+    /**
+     * Esconde el config de todas las herramientas
+     */
     hideConfig = () => {
         var configs = document.querySelectorAll('.config');
         configs.forEach(element => {
@@ -252,19 +285,18 @@ class Board extends React.Component {
                     <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
                         width={this.state.brush.width}
                     />
-                    <ColorPicker onColorChange={(color) => {this.handleColorChange(color);}} />
+                    <ColorPicker onColorChange={(color) => {this.handleColorChange(color, 'Brush');}} />
                 </div>
                 <div id='form-config' className='config'>
                     <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
-                        width={this.state.brush.width}
+                        width={this.state.form.width}
                     />
-                    <ColorPicker onColorChange={(color) => {this.handleColorChange(color);}} />
+                    <ColorPicker onColorChange={(color) => {this.handleColorChange(color, 'Form');}} />
                 </div>
                 <div id='eraser-config' className='config'>
                     <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
-                        width={this.state.brush.width}
+                        width={this.state.eraser.width}
                     />
-                    <ColorPicker onColorChange={(color) => {this.handleColorChange(color);}} />
                 </div>
                 <div className='toolbar'>
                     <div className='tool-container'>
