@@ -13,13 +13,13 @@ var brushConfig = {
 
 }
 var eraserConfig = {
-    width: 12,
+    width: 20,
     color: 'black',
 }
 
 var formConfig = {
     type: 'rectangle',
-    width: 12,
+    width: 3,
     color: 'black',
 }
 function getMousePos(canvas, evt) {
@@ -113,6 +113,7 @@ class Board extends React.Component {
             var height = pos.y - this.state.lastY;
             var width = pos.x - this.state.lastX;
             this.state.ctx.strokeStyle = this.state.form.color;
+            this.state.ctx.lineWidth = this.state.form.width;
             this.state.ctx.rect(this.state.lastX, this.state.lastY, width, height);
             this.state.ctx.stroke();
         }
@@ -190,7 +191,7 @@ class Board extends React.Component {
         this.state.ctx.lineJoin = 'round';
         //forma de la linea
         this.state.ctx.lineCap = 'round';
-        this.state.ctx.lineWidth = 15;
+        this.state.ctx.lineWidth = this.state.eraser.width;
         //dibuja lo que se ha hecho en el path
         this.state.ctx.stroke();
         this.saveLast(event, mouseX, mouseY);
@@ -223,10 +224,21 @@ class Board extends React.Component {
         this.saveLast(event, mouseX, mouseY);
     }
     //Event es el objecto CircleWidth
-    handleWidthChange = event => {
-        let brush = JSON.parse(JSON.stringify(this.state.brush))
-        brush.width = event.state.width;
-        this.setState({ brush: brush });
+    handleWidthChange = (event, tool) => {
+        console.log(tool)
+        if(tool == 'Brush') {
+            let brush = JSON.parse(JSON.stringify(this.state.brush))
+            brush.width = event.state.width;
+            this.setState({ brush: brush });
+        } else if(tool == 'Form') {
+            let form = JSON.parse(JSON.stringify(this.state.form))
+            form.width = event.state.width;
+            this.setState({ form: form });
+        } else if(tool == 'Eraser') {
+            let eraser = JSON.parse(JSON.stringify(this.state.eraser))
+            eraser.width = event.state.width; 
+            this.setState({ eraser: eraser });
+        }
     }
     /**
      * Cambia el color asociado a la herramienta
@@ -282,19 +294,19 @@ class Board extends React.Component {
             <div className="Board">
                 <canvas id="Board" height='800px' width='1500px'></canvas>
                 <div id='brush-config' className='config'>
-                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
+                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e, 'Brush'); }}
                         width={this.state.brush.width}
                     />
                     <ColorPicker onColorChange={(color) => {this.handleColorChange(color, 'Brush');}} />
                 </div>
                 <div id='form-config' className='config'>
-                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
+                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e, 'Form'); }}
                         width={this.state.form.width}
                     />
                     <ColorPicker onColorChange={(color) => {this.handleColorChange(color, 'Form');}} />
                 </div>
                 <div id='eraser-config' className='config'>
-                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e); }}
+                    <CircleWidth onValueChange={(e) => { this.handleWidthChange(e, 'Eraser'); }}
                         width={this.state.eraser.width}
                     />
                 </div>

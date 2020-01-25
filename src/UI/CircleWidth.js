@@ -1,5 +1,8 @@
 import React from 'react';
+import ReactDOM from 'react-dom'
 import './CircleWidth.css';
+import ColorPickerWrapper from './ColorPickerWrapper';
+import { CirclePicker } from 'react-color';
 
 function getMousePos(circle, evt) {
     return {
@@ -14,15 +17,18 @@ function moveLinearGradient(to) {
 }
 
 class CircleWidth extends React.Component {
-    constructor(props, context) { super(props, context)
+    constructor(props, context) { 
+        super(props, context);
         this.state = {
             width: this.props.width,
         }
+        console.log(this.props)
     }
     saveWidth = event => {
+        console.log('yee')
         if(event.key === 'Enter') {
             try {
-                var pixels = document.querySelector('.width-circle');
+                var pixels = this.refs.circle; 
                 pixels.contentEditable = 'false';
                 var newWidth = parseInt(pixels.innerHTML, 10);
                 if(!isNaN(newWidth) &&  newWidth < 100) {
@@ -43,9 +49,9 @@ class CircleWidth extends React.Component {
     }
 
     editWidth = event => {
-        var pixels = document.querySelector('.width-circle');
+        var pixels = this.refs.circle; 
         if(pixels != null) {
-            pixels.contentEditable = 'true';
+            pixels.contentEditable = true;
             pixels.focus();
         }
     }
@@ -84,6 +90,8 @@ class CircleWidth extends React.Component {
             var sum = this.state.width + difference;
             if(sum < 100 && sum > 0) {
                 this.setState({ width: sum });
+                var background = moveLinearGradient(100 - this.state.width);
+                this.state.circle.style.background = background; 
                 var background = moveLinearGradient(100 - sum);
                 this.state.circle.style.background = background; 
                 //Evento para el padre cuando cambia el valor
@@ -96,21 +104,17 @@ class CircleWidth extends React.Component {
     }
     componentDidMount() {
         var circle = document.querySelector('.brush-circle');
-        var pixels = document.querySelector('.width-circle');
-
         this.setState({ circle: circle });
-        circle.addEventListener('mousedown', (e) => this.mouseDown(e), false);
-        circle.addEventListener('mousemove', (e) => this.mouseMove(e), false);
-        circle.addEventListener('mouseup', (e) => this.mouseUp(e), false);
-
     }
     render() {
         return (
             <div className="CircleWidth">
-                <div className='brush-circle'>
+                <div ref='circle' onMouseUp={(e) => this.mouseUp(e)} onMouseMove={(e) => this.mouseMove(e)} onMouseDown={(e) => this.mouseDown(e)} className='brush-circle'>
                     <div className='width-circle'
-                        onKeyPress={(e) => { this.saveWidth(e); }}
+                        contentEditable ='true'
+                        onKeyDown={(e) => { this.saveWidth(e); }}
                         onDoubleClick={(e) => { this.editWidth(e) }}
+                        tabIndex='0'
                     >{this.state.width}</div>
                 </div>
             </div>
@@ -119,4 +123,4 @@ class CircleWidth extends React.Component {
     }
 }
 
-export default CircleWidth;
+export default CircleWidth; 
