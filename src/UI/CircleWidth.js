@@ -103,18 +103,16 @@ class CircleWidth extends React.Component {
         this.props.onValueChange(event);
     }
     componentDidMount() {
-        var circle = document.querySelector('.brush-circle');
+        var circle = this.refs.circle; 
+        var pixels = this.refs.pixels; 
         this.setState({ circle: circle });
+        pixels.contentEditable = 'false';
     }
     render() {
         return (
             <div className="CircleWidth">
                 <div ref='circle' onMouseUp={(e) => this.mouseUp(e)} onMouseMove={(e) => this.mouseMove(e)} onMouseDown={(e) => this.mouseDown(e)} className='brush-circle'>
-                    <div className='width-circle'
-                        contentEditable ='true'
-                        onKeyDown={(e) => { this.saveWidth(e); }}
-                        onDoubleClick={(e) => { this.editWidth(e) }}
-                        tabIndex='0'
+                    <div ref='pixels' className='width-circle'
                     >{this.state.width}</div>
                 </div>
             </div>
