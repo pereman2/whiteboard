@@ -1,8 +1,6 @@
+
 import React from 'react';
-import './Board.css';
-import brush from '../resources/svgs/Brush.svg';
-import rubber from '../resources/svgs/Rubber.svg';
-import form from '../resources/svgs/Form.svg';
+import './Toolbar.css';
 import CircleWidth from './CircleWidth';
 import ColorPicker from './ColorPicker';
 import arrow from '../resources/background/Arrowwhite.png';
@@ -11,9 +9,11 @@ import Brush from '../BusinessLogic/Brush';
 import Rectangle from '../BusinessLogic/Rectangle';
 import Circle from '../BusinessLogic/Circle';
 import StraightLine from '../BusinessLogic/StraightLine';
+import DropDown from './DropDown';
 
 var TOOL_STROKE_COLOR ='#94d3ac';
 var TOOL_DEFAULT_STROKE_COLOR ='white';
+var CONFIG_DISPLAY = 'flex';
 
 var BRUSH_DEFAULT_CONFIG= {
     width: 5,
@@ -30,143 +30,53 @@ var FORM_DEFAULT_CONFIG = {
     width: 3,
     color: 'black',
 }
-function getMousePos(canvas, evt) {
-    return {
-        x: evt.clientX,
-        y: evt.clientY
-    };
-}
+
 var pos = {
     x: 0,
     y: 0
 }
+
 var posa = {
     x: 100,
     y: 100
 }
 
-class Board extends React.Component {
+class Toolbar extends React.Component {
     constructor(props, context) {
         super(props, context)
-        this.initializeRefs();
         var line = new Brush(BRUSH_DEFAULT_CONFIG.width, BRUSH_DEFAULT_CONFIG.width, pos, posa);
         var lineErase = new Eraser(ERASER_DEFAULT_CONFIG.width, ERASER_DEFAULT_CONFIG.width, pos, posa);
-        var form = new StraightLine(FORM_DEFAULT_CONFIG.width, FORM_DEFAULT_CONFIG.color, pos);
-        var tools = [line,lineErase, form];
+        var circle = new Circle(FORM_DEFAULT_CONFIG.width, FORM_DEFAULT_CONFIG.color, pos);
+        var rectangle = new Rectangle(FORM_DEFAULT_CONFIG.width, FORM_DEFAULT_CONFIG.color, pos);
+        var straightLine = new StraightLine(FORM_DEFAULT_CONFIG.width, FORM_DEFAULT_CONFIG.color, pos);
+        var forms = {
+            circle: circle,
+            rectangle: rectangle,
+            straightLine: straightLine,
+        }
+        var tools = [line, lineErase, rectangle];
         this.state = {
             isDown: false,
             tool: 'Brush',
             line: line,
             lineErase: lineErase,
-            form: form,
+            form: rectangle,
+            forms: forms,
             tools: tools,
         }
     }
 
     componentDidMount() {
         this.setState({
-            canvas: this.canvas.current, 
             lastTool: document.querySelector('#Brush'),
         });
-        this.setToolsCanvas(this.getCanvas());
-        document.querySelector('#Brush').style.stroke = TOOL_STROKE_COLOR;
         var toolbar = document.querySelector('.toolbar');
-        document.querySelector('.config').style.height = toolbar.offsetHeight + 'px';
+        document.querySelector('#Brush').style.stroke = TOOL_STROKE_COLOR;
         this.hideConfig();
     }
-    initializeRefs = () => {
-        this.canvas = React.createRef();
-        this.toolBrush = React.createRef();
-        this.toolEraser = React.createRef();
-        this.toolForm = React.createRef();
-
-    }
-    getCanvas = () => {
-        return this.canvas;
-    }
-    getTools = () => {
-        return this.state.tools;
-    }
-    setToolsCanvas = (canvas) => {
-        var tools = this.getTools();
-        var canvas = this.getCanvas().current;
-        for(var i = 0; i < tools.length; i++) {
-            var tool = tools[i];
-            tool.setCanvas(canvas)
-        }
-    }
-
-    mouseDown = event => {
-        this.hideConfig();
-        this.setMouseIsDown(true);
-        this.initializePaths(event);
-    }
     
-    setMouseIsDown = (value) => {
-        this.setState({ isDown: value });
-    }
-    
-    initializePaths = (event) => {
-        this.initializePathBrush(event);
-        this.initializePathForm(event);
-        this.initializePathEraser(event);
-    }
-    
-    initializePathEraser = (event) => {
-        var pos = getMousePos(this.state.line.getCanvas(), event);
-        this.state.lineErase.getContext().beginPath();
-        this.state.lineErase.updateLine(pos)
-    }
-    
-    initializePathBrush = (event) => {
-        var pos = getMousePos(this.state.line.getCanvas(), event);
-        this.state.line.getContext().beginPath();
-        this.state.line.updateLine(pos)
-    }
-    
-    initializePathForm = (event) => {
-        var pos = getMousePos(this.state.line.getCanvas(), event);
-        this.state.form.getContext().beginPath();
-        this.state.form.setPosActual(pos);
-    }
-
-    mouseUp = event => {
-        var pos = getMousePos(this.state.canvas, event);
-        this.setMouseIsDown(false);
-        if (this.state.tool == 'Form') {
-            var pos = getMousePos(this.state.canvas, event);
-            this.state.form.actualizarPos(pos);
-            this.state.form.draw();
-        }
-        this.closePaths();
-    }
-
-    closePaths = () =>  {
-        this.state.form.getContext().closePath();
-        this.state.line.getContext().closePath();
-        this.state.lineErase.getContext().closePath();
-    }
-    
-    mouseMove = event => {
-        if (this.state.isDown) {
-            switch (this.state.tool) {
-                case 'Brush':
-                    this.brush(event);
-                    break;
-                case 'Eraser':
-                    this.erase(event);
-                    break;
-                case 'Form':
-                    this.form(event);
-                    break;
-            }
-        }
-    }
-
     reset = event => {
-        let ctx = this.state.canvas.getContext('2d');
-
-        ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
+        this.props.onResetCanvas();
     }
 
     setTool = (event, tool) => {
@@ -176,25 +86,8 @@ class Board extends React.Component {
             lastTool: document.querySelector('#' + tool)
 
         });
+        this.changeTool(tool);
         document.querySelector('#' + tool).style.stroke = TOOL_STROKE_COLOR;
-    }
-
-    erase = event => {
-        var pos = getMousePos(this.state.canvas, event);
-        this.state.lineErase.setMode('erase');
-        this.state.lineErase.updateLine(pos); 
-        this.state.lineErase.draw();
-    }
-
-    form = () => {
-
-    }
-
-    brush = event => {
-        var pos = getMousePos(this.state.canvas, event);
-        this.state.line.setMode('brush');
-        this.state.line.updateLine(pos);
-        this.state.line.draw();
     }
     //Event es el objecto CircleWidth
     handleWidthChange = (event, tool) => {
@@ -215,6 +108,10 @@ class Board extends React.Component {
         }
     }
 
+    changeTool = (tool) => {
+        this.props.onToolChange(tool);
+    }
+
     hideConfig = () => {
         var configs = document.querySelectorAll('.config');
         configs.forEach(element => {
@@ -226,26 +123,38 @@ class Board extends React.Component {
         switch (event.target.id) {
             case 'brush-arrow':
                 var config = document.querySelector('#brush-config');
-                config.style.display = 'inherit';
+                config.style.display = CONFIG_DISPLAY;
                 break;
             case 'eraser-arrow':
                 var config = document.querySelector('#eraser-config');
-                config.style.display = 'inherit';
+                config.style.display = CONFIG_DISPLAY;
                 break;
             case 'form-arrow':
                 var config = document.querySelector('#form-config');
-                config.style.display = 'inherit';
+                config.style.display = CONFIG_DISPLAY;
                 break;
         }
     }
+    getTools = () => {
+        var tools = {
+            line: this.state.line,
+            lineErase: this.state.lineErase,
+            form: this.state.form, 
+        }
+        return tools;
+    }
+
+    handleFormClicked = (form) => {
+        var newForm = this.state.forms[form];
+        console.log(form)
+        console.log(newForm)
+        this.setState({ form: newForm, });
+        this.props.onFormChanged(newForm);
+    }
+
     render() {
         return (
-            <div className="Board">
-                <canvas ref={this.canvas} id="Board" height='800px' width='1500px'
-                onMouseDown = {(e) => this.mouseDown(e)}
-                onMouseUp = {(e) => this.mouseUp(e)}
-                onMouseMove = {(e) => this.mouseMove(e)}
-                ></canvas>
+            <div className="Toolbar-wrapper">
                 <div id='brush-config' className='config'>
                     <CircleWidth onValueChange={(e) => { this.handleWidthChange(e, 'Brush'); }}
                         width={this.state.line.getWidth()}
@@ -253,6 +162,7 @@ class Board extends React.Component {
                     <ColorPicker onColorChange={(color) => {this.handleColorChange(color, 'Brush');}} />
                 </div>
                 <div id='form-config' className='config'>
+                    <DropDown onFormClicked={(form) => { this.handleFormClicked(form); }} />
                     <CircleWidth onValueChange={(e) => { this.handleWidthChange(e, 'Form'); }}
                         width={this.state.form.width}
                     />
@@ -329,4 +239,4 @@ class Board extends React.Component {
     }
 }
 
-export default Board;
+export default Toolbar;

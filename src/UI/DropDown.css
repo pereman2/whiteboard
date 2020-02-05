@@ -1,0 +1,33 @@
+.DropDown {
+    width: 60%;
+    height: 50px;
+    margin: 0;
+}
+.popup {
+    position: absolute;
+    padding: 10px;
+    height: fit-content;
+    width: fit-content;
+    left: 100%;
+    margin-left: 10px;
+    display: none;
+    flex-direction: column;
+}
+.box {
+    background-color: white;
+    background: #FFFFFF;
+    border: 1px solid #000000;
+    box-sizing: border-box;
+    box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+img:first-child {
+    margin: 0;
+}
+img {
+    margin-top: 10px;
+    cursor: pointer;
+}
+img:hover {
+    transform: scale(1.1, 1.1);
+    transition: ease-out 0.2s;
+}
