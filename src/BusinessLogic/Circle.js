@@ -1,8 +1,8 @@
 import Form from './Form';
 
-var COMPOSITE_OPERATION_FORM = 'source-over'; 
-var STARTING_ANGLE = 0 * Math.PI;
-var ENDING_ANGLE = 2 * Math.PI;
+const COMPOSITE_OPERATION_FORM = 'source-over'; 
+const STARTING_ANGLE = 0 * Math.PI;
+const ENDING_ANGLE = 2 * Math.PI;
 
  class Circle extends Form {
     constructor(width, color, posActual){

@@ -1,11 +1,12 @@
 .Board {
     height: 900px;
     width: 900px;
+    overflow: hidden;
 }
 #Board {
     background-color: transparent;
     border-style: outset;
     position: absolute;
     background-image: url('../resources/background/board.png');
-    background-size: contain;
+    background-size: cover;
 }

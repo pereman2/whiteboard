@@ -32,7 +32,6 @@ var LINE_CAP_ROUND = 'round';
         this.ctx.globalCompositeOperation = COMPOSITE_OPERATION_FORM; 
         this.ctx.lineWidth = this.width;
         this.ctx.strokeStyle = this.color;
-
     }
 
 }

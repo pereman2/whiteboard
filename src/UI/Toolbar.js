@@ -70,7 +70,6 @@ class Toolbar extends React.Component {
         this.setState({
             lastTool: document.querySelector('#Brush'),
         });
-        var toolbar = document.querySelector('.toolbar');
         document.querySelector('#Brush').style.stroke = TOOL_STROKE_COLOR;
         this.hideConfig();
     }
@@ -80,7 +79,7 @@ class Toolbar extends React.Component {
     }
 
     setTool = (event, tool) => {
-        this.state.lastTool.style.stroke = TOOL_DEFAULT_STROKE_COLOR;
+        this.changeLastToolColor();
         this.setState({
             tool: tool,
             lastTool: document.querySelector('#' + tool)
@@ -89,21 +88,25 @@ class Toolbar extends React.Component {
         this.changeTool(tool);
         document.querySelector('#' + tool).style.stroke = TOOL_STROKE_COLOR;
     }
+    changeLastToolColor = () => {
+        var tool = this.state.lastTool;
+        tool.style.stroke = TOOL_DEFAULT_STROKE_COLOR;
+    }
     //Event es el objecto CircleWidth
     handleWidthChange = (event, tool) => {
-        if(tool == 'Brush') {
+        if(tool === 'Brush') {
             this.state.line.setWidth(event.state.width)
-        } else if(tool == 'Form') {
+        } else if(tool === 'Form') {
             this.state.form.setWidth(event.state.width)
-        } else if(tool == 'Eraser') {
+        } else if(tool ==='Eraser') {
             this.state.lineErase.setWidth(event.state.width)
         }
     }
 
     handleColorChange = (color, tool) => {
-        if(tool == 'Brush') {
+        if(tool === 'Brush') {
             this.state.line.setColor(color.hex);
-        } else if(tool == 'Form') {
+        } else if(tool === 'Form') {
             this.state.form.setColor(color.hex);
         }
     }
@@ -126,12 +129,12 @@ class Toolbar extends React.Component {
                 config.style.display = CONFIG_DISPLAY;
                 break;
             case 'eraser-arrow':
-                var config = document.querySelector('#eraser-config');
-                config.style.display = CONFIG_DISPLAY;
+                var configEraser = document.querySelector('#eraser-config');
+                configEraser.style.display = CONFIG_DISPLAY;
                 break;
             case 'form-arrow':
-                var config = document.querySelector('#form-config');
-                config.style.display = CONFIG_DISPLAY;
+                var configForm = document.querySelector('#form-config');
+                configForm.style.display = CONFIG_DISPLAY;
                 break;
         }
     }

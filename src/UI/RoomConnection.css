@@ -1,0 +1,16 @@
+#room {
+    border-style: solid;
+    border-color: black;
+    background-color: white;
+    z-index: 200;
+    position: absolute;
+    left: 100px;
+
+}
+button {
+    color: white;
+}
+
+video {
+	border-style: solid;
+}
