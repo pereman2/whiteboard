@@ -2,6 +2,7 @@ import React from 'react';
 import './RoomConnection.css';
 import io from 'socket.io-client';
 import adapter from 'webrtc-adapter';
+import ws from 'ws';
 console.log(adapter.browserDetails.browser)
 console.log(adapter.browserDetails.version)
 
@@ -20,12 +21,24 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 class RoomConnection extends React.Component {
 	constructor(props, context) {
 		super(props, context);
-	//	this.socket = io.connect('https://backendboard-35dae.firebaseapp.com:8000');
-	//	this.socket = io.connect('https://pizarrabackend.herokuapp.com:59379',
+		//this.socket = new WebSocket('ws://pizarrabackend.herokuapp.com:46516')
+		//this.socket = new WebSocket('ws://localhost:8000')
+		//this.socket = new WebSocket('ws://pizarrabackend.herokuapp.com:33855');
+		this.socket = io.connect('ws://pizarrabackend.herokuapp.com',
+			{
+				reconnect: true,
+				transports: ['websocket'],
+				path: '/socket.io'
+			}
+		);
+	//	this.socket = io.connect('ws://localhost:8000',
 	//		{
+	//			reconnect: true,
+	//			transports: ['websocket'],
+	//			path: '/socket.io'
 	//		}
 	//	);
-		this.socket = io.connect('localhost:8000/custom_nsp');
+		//this.socket = io.connect('localhost:8000/custom_nsp');
 		//this.socket = io.connect('localhost:8000');
 		this.localPeerConnection = new RTCPeerConnection({
 			iceServers: [
@@ -60,10 +73,10 @@ class RoomConnection extends React.Component {
 	}
 
 	setSocketEvents = () => {
-	//	this.socket.emit('pong');
+	//	this.socket.send('pong');
 	//	this.socket.on('ping', function onPingReceived(e) {
-	//		console.log('Server emitted ping: ' + e.message);
-	//		this.socket.emit('pong', 'hi server!');
+	//		console.log('Server sendted ping: ' + e.message);
+	//		this.socket.send('pong', 'hi server!');
 	//	});
 		this.socket.on('messages', function(data) {
 			console.log(data);
@@ -141,7 +154,7 @@ class RoomConnection extends React.Component {
 				this.setLocalDescriptionSuccess(this.localPeerConnection);
 			}).catch(this.setSessionDescriptionError);
 		await this.waitGathering()
-		this.socket.emit('offer',this.localPeerConnection.localDescription);
+		this.socket.emit('offer', this.localPeerConnection.localDescription);
 	}
 	waitGathering = async () => {
 		while(this.localPeerConnection.iceGatheringState != 'complete') {
@@ -191,7 +204,7 @@ class RoomConnection extends React.Component {
 
 	iceCandidateFinder = (room, socketId) => {
 		console.log('finding candidates');
-		this.socket.emit('geticecandidates', room, socketId);
+		this.socket.send('geticecandidates', room, socketId);
 	}
 
 	setLocalDescriptionSuccess = param => {
@@ -226,7 +239,7 @@ class RoomConnection extends React.Component {
 		const iceCandidate = event.candidate;
 		console.log('new candidate')
 		console.log(iceCandidate)
-		//this.socket.emit('icecandidate', [iceCandidate]);
+		//this.socket.send('icecandidate', [iceCandidate]);
 	}
 
 	addIceCandidates = (iceCandidates) => {
