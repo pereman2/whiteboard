@@ -9,16 +9,31 @@
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.19.2",
+<<<<<<< HEAD
+    "cors": "^2.8.5",
+=======
+>>>>>>> cb567538eb63b2c2129d45e7f952d2c73110b819
     "mdbreact": "^4.25.0",
+    "mongodb": "^3.5.2",
+    "peerjs": "^1.2.0",
     "rc-color-picker": "^1.2.6",
     "react": "^16.12.0",
     "react-color": "^2.18.0",
     "react-dom": "^16.12.0",
     "react-scripts": "3.3.0",
     "simple-peer": "^9.6.2",
+<<<<<<< HEAD
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "webrtc": "^1.14.1",
+    "webrtc-adapter": "^7.5.1",
+    "wrtc": "^0.4.4",
+    "ws": "^7.2.3"
+=======
     "socket.io-client": "^2.3.0",
     "webrtc-adapter": "^7.5.1",
     "wrtc": "^0.4.4"
+>>>>>>> cb567538eb63b2c2129d45e7f952d2c73110b819
   },
   "scripts": {
     "start": "react-scripts start",
@@ -52,5 +67,5 @@
   "bugs": {
     "url": "https://github.com/pereman2/tutoronline/issues"
   },
-  "homepage": "https://github.com/pereman2/tutoronline#readme"
+  "homepage": "."
 }
