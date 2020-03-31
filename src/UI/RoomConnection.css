@@ -4,13 +4,26 @@
     background-color: white;
     z-index: 200;
     position: absolute;
+    top: calc(100% - 200px);
     left: 100px;
+	height: 200px;
+	display: flex;
 
 }
-button {
+textarea {
+	height: 50px
+}
+#room button {
     color: white;
+	background: #827397;
+	height: 50px
 }
 
 video {
-	border-style: solid;
+    height: 100%;
+    display: none;
+}
+
+video:not(:first-child) {
+    margin-left: 10px;
 }

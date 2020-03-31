@@ -24,6 +24,7 @@ class Board extends React.Component {
 		this.state = {
 			isDown: false,
 			tool: 'Brush',
+			room: props.room
 		}
 	}
 
@@ -40,7 +41,6 @@ class Board extends React.Component {
 			tools: tools,
 		});
 		this.setToolsCanvas(this.getCanvas());
-		
 	}
 
 	
@@ -205,6 +205,7 @@ class Board extends React.Component {
 					onResetCanvas={() => { this.reset(); }}
 					onFormChanged={(form) => { this.changeForm(form); }}
 				/>
+				<RoomConnection room={this.state.room}/>
 			</div>
 
 		);
