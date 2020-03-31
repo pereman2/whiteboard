@@ -64,7 +64,6 @@ class Board extends React.Component {
 		var lastCanvasImg = document.getElementById('Board').toDataURL();		
 		if(this.state.pos == 0) {					
 			this.updatePushArray(lastCanvasImg);			
-			this.toStringCanvas();
 		}
 		else {
 			this.removeUnusedElements(lastCanvasImg);
@@ -109,25 +108,20 @@ class Board extends React.Component {
 		})
 	}	
 
-	canvasUndo = () => {
-		var auxCanvas = this.state.canvas;		
+	canvasUndo = () => {			
 		var posAux = this.state.pos;
 		var aux = this.state.pushArray;		
-		if (posAux <= aux.length) {
-			let ctx = auxCanvas.getContext("2d");									
+		if (posAux < aux.length) {
+			let ctx = this.state.canvas.getContext("2d");									
 			let canvasImg = new Image();
-
-			if (aux[posAux] != undefined) {
-				console.log(posAux);
-				console.log(aux[posAux]);				
+			posAux++;
+			if (aux[posAux] != undefined) {							
 				canvasImg.addEventListener('load', e => {
 					this.reset();
 					ctx.drawImage(canvasImg,0,0);					
 				});
 				canvasImg.src = aux[posAux];
-			}
-
-			posAux++;			
+			}						
 			this.setState({
 				pos: posAux,				
 			})
@@ -136,33 +130,24 @@ class Board extends React.Component {
 
 	}
 
-	canvasRedo = () => {
-		var auxCanvas = this.state.canvas;
+	canvasRedo = () => {		
 		var posAux = this.state.pos;
-		var aux = this.state.pushArray;
-		console.log(posAux);
+		var aux = this.state.pushArray;		
 		if (posAux > 0) {
 			posAux--;
-			if (aux[posAux] == null) {				
-				this.setState({
-					pos: posAux,
-				})
-				this.canvasRedo();
-			}
-			else {								
-				let ctx = auxCanvas.getContext("2d");
+			if (aux[posAux] != undefined) {												
+				let ctx = this.state.canvas.getContext("2d");
 				var canvasImg = new Image();				
 				canvasImg.addEventListener('load', e => {
 					this.reset();
 					ctx.drawImage(canvasImg,0,0);					
-				});	
-				canvasImg.src = this.state.pushArray[posAux];				
+				});					
+				canvasImg.src = aux[posAux];												
 			}
-		}
-		this.setState({
-			pos: posAux,
-			canvas: auxCanvas,
-		})
+			this.setState({
+				pos: posAux,			
+			});		
+		}		
 	}
 
 	
@@ -333,7 +318,7 @@ class Board extends React.Component {
 					onToolChange={(tool) => { this.handleToolChange(tool); }}
 					onResetCanvas={() => { this.reset(); }}
 					onFormChanged={(form) => { this.changeForm(form); }}
-				/>
+				/>				
 			</div>
 
 		);
