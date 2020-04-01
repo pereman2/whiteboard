@@ -26,7 +26,7 @@ class RoomConnection extends EventEmitter{
 			offerToReceiveVideo: true,
 			offerToReceiveAudio: true,
 		});
-		this.socket = this.getLocalSocket();
+		this.socket = this.getRemoteSocket();
 	}
 
 	connect = async (room) => {
