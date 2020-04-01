@@ -308,7 +308,7 @@ class RoomConnection extends EventEmitter{
 	}
 
 	getRemoteSocket = () => {
-		var socket = io.connect('ws://pizarrabackend.herokuapp.com',
+		var socket = io.connect('wss://pizarrabackend.herokuapp.com',
 			{
 				reconnect: true,
 				transports: ['websocket'],
