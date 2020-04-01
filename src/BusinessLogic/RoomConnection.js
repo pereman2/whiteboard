@@ -68,10 +68,13 @@ class RoomConnection extends EventEmitter{
 		console.log('ontrack');
 		console.log(event)
 		var remoteVideo = document.querySelector("#remoteVideo");
+		var remoteAudio = document.querySelector("#remoteAudio");
 		event.track.onunmute = () => {
 			if(remoteVideo.srcObject) return;
 			remoteVideo.srcObject = event.streams[0];
+			remoteAudio.srcObject = event.streams[0];
 			remoteVideo.play()
+			remoteAudio.play()
 			remoteVideo.style.display = 'inherit'
 		}
 		//remoteVideo.srcObject = event.streams[0];
