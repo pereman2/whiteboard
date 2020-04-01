@@ -32,7 +32,7 @@ class RoomConnection extends React.Component {
 	render() {
 		return (
 			<div id='room'>
-				<video id='localVideo' className='box'></video>
+				<video id='localVideo' className='box' muted></video>
 				<video id='remoteVideo' className='box'></video>
 			</div>
 		);

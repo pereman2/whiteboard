@@ -7,7 +7,6 @@ console.log(adapter.browserDetails.version)
 
 
 const mediaConstraints = { 
-	video: {width:200,height:200},
 	audio: true 
 }
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -23,7 +22,6 @@ class RoomConnection extends EventEmitter{
 			iceServers: [
 				{urls: 'stun:stun.l.google.com:19302'},
 			],
-			offerToReceiveVideo: true,
 			offerToReceiveAudio: true,
 		});
 		this.socket = this.getRemoteSocket();
@@ -163,7 +161,6 @@ class RoomConnection extends EventEmitter{
 	createOffer = async () => {
 		await this.localPeerConnection.createOffer({ 
 			offerToReceiveAudio: true, 
-			offerToReceiveVideo: true 
 		})
 			.then(this.createdOffer)
 			.catch(this.setSessionDescriptionError);
