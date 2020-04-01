@@ -34,7 +34,7 @@ class RoomConnection extends React.Component {
 			<div id='room'>
 				<video id='localVideo' className='box' muted></video>
 				<video id='remoteVideo' className='box'></video>
-				<audio id='remoteAudio'></video>
+				<audio id='remoteAudio'></audio>
 			</div>
 		);
 	}
