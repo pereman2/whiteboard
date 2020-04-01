@@ -312,7 +312,9 @@ class RoomConnection extends EventEmitter{
 			{
 				reconnect: true,
 				transports: ['websocket'],
-				path: '/socket.io'
+				path: '/socket.io',
+				protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
+
 			}
 		);
 		return socket
