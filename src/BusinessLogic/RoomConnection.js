@@ -31,9 +31,8 @@ class RoomConnection extends EventEmitter{
 	connect = async (room) => {
 		var localVideo = document.querySelector("#localVideo");
 		try{
-			let constraints = await this.getMediaConstraints();
-			console.log(constraints)
-			const stream = await navigator.mediaDevices.getUserMedia(constraints);
+			//let constraints = await this.getMediaConstraints();
+			const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 			for(const track of stream.getTracks()) {
 				this.localPeerConnection.addTrack(track, stream);
 			}
