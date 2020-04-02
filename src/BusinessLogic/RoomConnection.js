@@ -5,7 +5,6 @@ import EventEmitter from 'events'
 console.log(adapter.browserDetails.browser)
 console.log(adapter.browserDetails.version)
 
-
 const mediaConstraints = { 
 	video: {width:200,height:200},
 	audio: true 
@@ -32,7 +31,9 @@ class RoomConnection extends EventEmitter{
 	connect = async (room) => {
 		var localVideo = document.querySelector("#localVideo");
 		try{
-			const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+			let constraints = await this.getMediaConstraints();
+			console.log(constraints)
+			const stream = await navigator.mediaDevices.getUserMedia(constraints);
 			for(const track of stream.getTracks()) {
 				this.localPeerConnection.addTrack(track, stream);
 			}
@@ -160,91 +161,6 @@ class RoomConnection extends EventEmitter{
 
 	}
 
-	createOffer = async () => {
-		await this.localPeerConnection.createOffer({ 
-			offerToReceiveAudio: true, 
-			offerToReceiveVideo: true 
-		})
-			.then(this.createdOffer)
-			.catch(this.setSessionDescriptionError);
-
-	}
-
-	createdOffer = async (description) => {
-		console.log('setting local peer1');
-		console.log(description)
-		if(this.localPeerConnection.signalingState != 'stable') return;
-		await this.localPeerConnection.setLocalDescription(description)
-			.then(() => {
-				this.setLocalDescriptionSuccess(this.localPeerConnection);
-			}).catch(this.setSessionDescriptionError);
-		await this.waitGathering()
-		this.socket.emit('offer', this.localPeerConnection.localDescription);
-	}
-	waitGathering = async () => {
-		while(this.localPeerConnection.iceGatheringState != 'complete') {
-			console.log(this.localPeerConnection.iceGatheringState)
-			await wait(1000);
-		}
-	}
-
-	createAnswer = async (description) => {
-		console.log('setting remote peer2');
-		console.log(description)
-		await this.localPeerConnection.setRemoteDescription(description)
-			.then(() => {
-				this.setRemoteDescriptionSuccess(this.remotePeerConnection)
-			}).catch(this.setSessionDescriptionError);
-		if (navigator.mediaDevices.getUserMedia) {
-			navigator.mediaDevices.getUserMedia(mediaConstraints)
-				.then(this.gotLocalMediaStream)
-				.catch(this.handleLocalMediaStreamError);
-		}
-		await this.localPeerConnection.createAnswer()
-			.then(this.createdAnswer)
-			.catch(this.setSessionDescriptionError);
-
-	}
-
-	createdAnswer = async (description) => {
-		console.log('setting local peer2');
-		console.log(description)
-		console.log(this.localPeerConnection.connectionState);
-		await this.localPeerConnection.setLocalDescription(description)
-			.then(() => {
-				this.setLocalDescriptionSuccess(this.remotePeerConnection);
-			}).catch(this.setSessionDescriptionError);
-		await this.waitGathering();	
-		this.socket.emit('answer', this.localPeerConnection.localDescription);
-	}
-
-	gotAnswer = async (description) => {
-		console.log('setting remote peer1');
-		console.log(description)
-		await this.localPeerConnection.setRemoteDescription(description)
-			.then(() => {
-				this.setRemoteDescriptionSuccess(this.localPeerConnection);
-			}).catch(this.setSessionDescriptionError);
-	}
-
-	iceCandidateFinder = (room, socketId) => {
-		console.log('finding candidates');
-		this.socket.send('geticecandidates', room, socketId);
-	}
-
-	setLocalDescriptionSuccess = param => {
-		console.log('local description success');
-	}
-
-	setRemoteDescriptionSuccess = param => {
-		console.log('remote description success');
-	}
-
-	setSessionDescriptionError = (error) => {
-		console.log('sesion error')
-		console.log(error)
-	}
-
 	gotLocalMediaStream = stream => {
 		var localVideo = document.querySelector("#localVideo");
 		for (const track of stream.getTracks()) {
@@ -318,6 +234,32 @@ class RoomConnection extends EventEmitter{
 			}
 		);
 		return socket
+	}
+	getMediaConstraints = async () => {
+		let permissions = await this.getMediaPermissions();	
+		if(permissions.video) {
+			permissions.video = {width:200,height:200}
+		} 
+		console.log(permissions)
+		return permissions
+	}
+	getMediaPermissions = async () => {
+		let permissions = {}
+		let video;
+		let audio; 
+		await navigator.permissions.query({name: "camera"})
+			.then((result) => {video = result.state});
+		await navigator.permissions.query({name: "microphone"})
+			.then((result) => {audio = result.state});
+		audio = this.getDevicePermissions(audio);
+		video = this.getDevicePermissions(video);
+		permissions['video'] = video
+		permissions['audio'] = audio
+		console.log(permissions)
+		return permissions
+	}
+	getDevicePermissions = (media) => {
+		return media == 'granted' ? true : false;	
 	}
 }
 
