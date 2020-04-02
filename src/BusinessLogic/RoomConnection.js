@@ -4,6 +4,7 @@ import ws from 'ws';
 import EventEmitter from 'events'
 console.log(adapter.browserDetails.browser)
 console.log(adapter.browserDetails.version)
+console.log(media.navigator.enabled)
 
 const mediaConstraints = { 
 	video: {width:200,height:200},
