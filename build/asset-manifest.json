@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "./static/css/main.2022e744.chunk.css",
-    "main.js": "./static/js/main.ff01d02d.chunk.js",
-    "main.js.map": "./static/js/main.ff01d02d.chunk.js.map",
+    "main.js": "./static/js/main.511cebe0.chunk.js",
+    "main.js.map": "./static/js/main.511cebe0.chunk.js.map",
     "runtime-main.js": "./static/js/runtime-main.59765bcc.js",
     "runtime-main.js.map": "./static/js/runtime-main.59765bcc.js.map",
     "static/js/2.8c75a664.chunk.js": "./static/js/2.8c75a664.chunk.js",
     "static/js/2.8c75a664.chunk.js.map": "./static/js/2.8c75a664.chunk.js.map",
     "index.html": "./index.html",
-    "precache-manifest.bdda5932137350609158905ab013022f.js": "./precache-manifest.bdda5932137350609158905ab013022f.js",
+    "precache-manifest.a7e33b00b6f0d35072c62e982bba0f86.js": "./precache-manifest.a7e33b00b6f0d35072c62e982bba0f86.js",
     "service-worker.js": "./service-worker.js",
     "static/css/main.2022e744.chunk.css.map": "./static/css/main.2022e744.chunk.css.map",
     "static/media/Board.css": "./static/media/Fondo.d3ae2f8f.png",
@@ -18,6 +18,6 @@
     "static/js/runtime-main.59765bcc.js",
     "static/js/2.8c75a664.chunk.js",
     "static/css/main.2022e744.chunk.css",
-    "static/js/main.ff01d02d.chunk.js"
+    "static/js/main.511cebe0.chunk.js"
   ]
 }
