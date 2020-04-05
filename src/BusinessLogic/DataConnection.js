@@ -15,83 +15,64 @@ var makingOffer = false;
 var ignoreOffer = false;
 var polite = false;
 
-class RoomConnection extends EventEmitter{
+class DataConnection extends EventEmitter{
 	constructor(socket) {
 		super();
 		this.localPeerConnection = new RTCPeerConnection({
 			iceServers: [
 				{urls: 'stun:stun.l.google.com:19302'},
 			],
-			offerToReceiveVideo: true,
-			offerToReceiveAudio: true,
 		});
 		this.socket = socket;
 	}
 
 	connect = async (room) => {
-		var localVideo = document.querySelector("#localVideo");
-		try{
-			//let constraints = await this.getMediaConstraints();
-			const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-			for(const track of stream.getTracks()) {
-				this.localPeerConnection.addTrack(track, stream);
-			}
-			localVideo.srcObject = stream;		
-			localVideo.play()
-			localVideo.style.display = 'inherit'
-		} catch(error) {
-			console.error(error);
-		}
 		this.setSocketEvents();
-		this.localPeerConnection.ontrack = this.onTrackHandler;
+		this.dataChannel = this.localPeerConnection.createDataChannel("data", {"negotiated":true, "id":0});
+		this.dataChannel.onopen = () => {this.connected = true;}
+		this.dataChannel.onmessage = (data) => {this.handleDataMessage(data);}
 		this.localPeerConnection.onnegotiationneeded = this.handleNegotation;
 		this.localPeerConnection.addEventListener('icecandidate', this.handleConnection);
-		this.iceCandidates = []
 	}
 
 	handleNegotation = async () => {
-		//this.createOffer()
-
 		try {
-			makingOffer = true
-			var offer = await this.localPeerConnection.createOffer();
+			let offer = await this.localPeerConnection.createOffer();
 			await this.localPeerConnection.setLocalDescription(offer);
-			this.socket.emit('offer', this.localPeerConnection.localDescription);
+			this.socket.emit('dataoffer', this.localPeerConnection.localDescription);
 		} catch(error) {
-			console.log(error);
-		} finally {
-			makingOffer = false
+			console.error(error);
 		}
 	}
-	onTrackHandler = (event) => {
-		var remoteVideo = document.querySelector("#remoteVideo");
-		event.track.onunmute = () => {
-			if(remoteVideo.srcObject) return;
-			remoteVideo.srcObject = event.streams[0];
-			remoteVideo.play()
-			remoteVideo.style.display = 'inherit'
+	updateCanvas = (canvas) => {
+		this.sendData('canvas', canvas);
+	}
+	sendData = (type, data) => {
+		if(this.connected) {
+			this.dataChannel.send(JSON.stringify({"type": type, "data": data}));
 		}
-		//remoteVideo.srcObject = event.streams[0];
-		//this.localPeerConnection.addTrack(event.track, event.streams[0]);
+	}
+	handleDataMessage = (message) => {
+		var data = JSON.parse(message.data);
+		if(data.type == "canvas") {
+			this.emit('canvas', data.data);
+		}
 	}
 
+	handleConnection = event => {
+		const peerConnection = event.target;
+		const iceCandidate = event.candidate;
+		this.socket.emit('dataicecandidate', iceCandidate);
+	}
 	setSocketEvents = () => {
-		this.socket.on('messages', async (description, candidate) => {
+		this.socket.on('datamessages', async (description, candidate) => {
 			try{
 				if(description) {
-					let offerCollision = description.type == 'offer' && 
-											(makingOffer ||
-											this.localPeerConnection.signalingState != 'stable');
-					ignoreOffer = !polite && offerCollision;
-					if(ignoreOffer) {
-            console.log('ignored')
-						return;
-					}
 					await this.localPeerConnection.setRemoteDescription(description)
 					if(description.type == 'offer') {
 						let answer = await this.localPeerConnection.createAnswer();
 						await this.localPeerConnection.setLocalDescription(answer);
-						this.socket.emit('answer', this.localPeerConnection.localDescription);
+						this.socket.emit('dataanswer', this.localPeerConnection.localDescription);
 					}
 				} else if(candidate) {
 					try{
@@ -104,6 +85,8 @@ class RoomConnection extends EventEmitter{
 				console.error(error);
 			}
 		});
+
+
 		this.socket.on('connect', function(data) {
 			console.log(data);
 		});
@@ -115,45 +98,24 @@ class RoomConnection extends EventEmitter{
 		});
 
 		this.socket.on('created', async (room, socketId) => {
-      console.log('created')
 			polite = true;
 		});
 
 		this.socket.on('joined', (room, socketId, offer) => {
 		});
 
-		this.socket.on('answer', (room, socketId, answer) => {
+		this.socket.on('dataanswer', (room, socketId, answer) => {
 			var rtcDescription = new RTCSessionDescription(answer);
 			this.gotAnswer(rtcDescription);
 		});
 
-		this.socket.on('newicecandidates', (room, socketId, iceCandidates) => {
-			console.log('newicecandidates');
-			console.log(iceCandidates);
+		this.socket.on('datanewicecandidates', (room, socketId, iceCandidates) => {
 			this.addIceCandidates(iceCandidates);
 		});
-    this.socket.emit('listening');
+
 	}
 
-	gotLocalMediaStream = stream => {
-		var localVideo = document.querySelector("#localVideo");
-		for (const track of stream.getTracks()) {
-			this.localPeerConnection.addTrack(track, stream);
-		}
-		localVideo.srcObject = stream;
-		localVideo.play();
-		this.localPeerConnection.addStream(stream);
-	}
 
-	handleLocalMediaStreamError = error => {
-		console.log(error);
-	}
-
-	handleConnection = event => {
-		const peerConnection = event.target;
-		const iceCandidate = event.candidate;
-		this.socket.emit('icecandidate', iceCandidate);
-	}
 
 	addIceCandidates = (iceCandidates) => {
 		for(let i = 0; i < iceCandidates.length; i++) {
@@ -194,6 +156,18 @@ class RoomConnection extends EventEmitter{
 		return socket
 	}
 
+	getLocalConnection = () => {
+		var socket = io.connect('ws://localhost:8000',
+			{
+				reconnect: true,
+				transports: ['websocket'],
+				path: '/socket.io',
+				protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
+
+			}
+		);
+		return socket
+	}
 	getRemoteSocket = () => {
 		var socket = io.connect('wss://pizarrabackend.herokuapp.com',
 			{
@@ -232,4 +206,4 @@ class RoomConnection extends EventEmitter{
 	}
 }
 
-export default RoomConnection;
+export default DataConnection;

@@ -63,6 +63,7 @@ class Board extends React.Component {
 
 	canvasPush = () => {		
 		var lastCanvasImg = document.getElementById('Board').toDataURL();		
+    this.roomConnection.current.updateCanvas(lastCanvasImg);
 		if(this.state.pos == 0) {					
 			this.updatePushArray(lastCanvasImg);			
 		}
@@ -74,7 +75,6 @@ class Board extends React.Component {
 
 	toStringCanvas = () => {
 		var aux = this.state.pushArray;
-		console.log('---------------------------------------');
 		for(var i = 0; i < aux.length; i++) { 
 			console.log(i);
 			console.log(aux[i]); 
@@ -117,11 +117,7 @@ class Board extends React.Component {
 			let canvasImg = new Image();
 			posAux++;
 			if (aux[posAux] != undefined) {							
-				canvasImg.addEventListener('load', e => {
-					this.reset();
-					ctx.drawImage(canvasImg,0,0);					
-				});
-				canvasImg.src = aux[posAux];
+        this.updateCanvas(aux[posAux]);
 			}						
 			this.setState({
 				pos: posAux,				
@@ -137,13 +133,7 @@ class Board extends React.Component {
 		if (posAux > 0) {
 			posAux--;
 			if (aux[posAux] != undefined) {												
-				let ctx = this.state.canvas.getContext("2d");
-				var canvasImg = new Image();				
-				canvasImg.addEventListener('load', e => {
-					this.reset();
-					ctx.drawImage(canvasImg,0,0);					
-				});					
-				canvasImg.src = aux[posAux];												
+        this.updateCanvas(aux[posAux]);
 			}
 			this.setState({
 				pos: posAux,			
@@ -151,11 +141,17 @@ class Board extends React.Component {
 		}		
 	}
 
-	
-	
-	addStream = () => {
+  updateCanvas = (canvasImgReceived) => {
+		let ctx = this.state.canvas.getContext('2d');
+    var canvasImg = new Image();				
+    canvasImg.addEventListener('load', e => {
+      this.reset();
+      ctx.drawImage(canvasImg,0,0);					
+    });					
+    canvasImg.src = canvasImgReceived;												
+  }
 
-	}
+	
 
 	initializeRefs = () => {
 		this.canvas = React.createRef();
@@ -163,6 +159,7 @@ class Board extends React.Component {
 		this.toolEraser = React.createRef();
 		this.toolForm = React.createRef();
 		this.toolbar = React.createRef();
+    this.roomConnection = React.createRef();
 
 	}
 
@@ -320,9 +317,13 @@ class Board extends React.Component {
 					onResetCanvas={() => { this.reset(); }}
 					onFormChanged={(form) => { this.changeForm(form); }}
 				/>
-				<RoomConnection room={this.state.room}/>
-				/>				
-			</div>
+        <RoomConnection 
+          ref={this.roomConnection} 
+          room={this.state.room}
+          onCanvasUpdate={(canvasImg) => {this.updateCanvas(canvasImg);}}
+        />
+      />				
+      </div>
 
 		);
 	}
