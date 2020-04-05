@@ -22,7 +22,7 @@ class RoomConnection extends React.Component {
 		var localVideo = document.querySelector("#localVideo");
 		var remoteVideo = document.querySelector("#remoteVideo");
 		console.log(remoteVideo, localVideo);
-    this.socket = this.getLocalSocket();
+    this.socket = this.getRemoteSocket();
 		this.connection = new roomConnection(this.socket);
 		this.dataConnection = new dataConnection(this.socket);
     this.dataConnection.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas);});
