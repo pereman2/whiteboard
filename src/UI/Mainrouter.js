@@ -33,11 +33,19 @@ class Mainrouter extends React.Component {
                     <Route exact path="/">
                         <Mainpage />
                     </Route>
-                    <Route path="/login">
-                        <Login />
-                    </Route>
-                    <Route path="/signup">
+                    <Route path="/signup" render={props => 
+                        loggedIn ?(
+                        <Home {...props} />    
+                        ) :
                         <SignUp />
+                    }>
+                    </Route>
+                    <Route path="/login" render={props => 
+                        loggedIn ?(
+                        <Home {...props} />    
+                        ) :
+                        <Login />
+                    }>
                     </Route>
                     <Route path="/home" render={props => 
                         loggedIn ?(
