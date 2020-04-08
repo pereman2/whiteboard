@@ -3,7 +3,7 @@ const sha256 = require('js-sha256').sha256;
 
 //const urlLogin = 'http://localhost:9000/user/checklogin'
 //const urlRegister = 'http://localhost:9000/user/register'
-const urlLogin = 'https://boardbackend.herokuapp.com:38404/user/checklogin'
+const urlLogin = 'https://boardbackend.herokuapp.com/user/checklogin'
 const urlRegister = 'https://boardbackend.herokuapp.com/user/register'
 
 class User {
