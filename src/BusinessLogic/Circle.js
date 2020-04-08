@@ -18,7 +18,11 @@ const ENDING_ANGLE = 2 * Math.PI;
 
     makeCircle() {
         var center = this.getCenter();
-        this.ctx.arc(center.x, center.y,center.radius, STARTING_ANGLE, ENDING_ANGLE);
+				try {
+					this.ctx.arc(center.x, center.y,center.radius, STARTING_ANGLE, ENDING_ANGLE);
+				} catch (error) {
+					console.log(error);
+				}
     }
     getCenter() {
         var rect = this.canvas.getBoundingClientRect();

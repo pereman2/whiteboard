@@ -1,7 +1,6 @@
 import React from 'react';
 import './Board.css';
 import Toolbar from './Toolbar';
-import VoiceConnection from '../BusinessLogic/VoiceConnection';
 import RoomConnection from './RoomConnection';
 
 
@@ -26,7 +25,7 @@ class Board extends React.Component {
 		this.state = {
 			isDown: false,
 			tool: 'Brush',
-			room: props.room,
+			room: this.props.location.state.id,
 			pushArray: new Array(15),
 			pos: 0,
 		}
