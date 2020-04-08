@@ -35,10 +35,6 @@ class Login extends React.Component {
         let user = new User(username, password);
         let res = await user.checkLogin();
         if(res) {
-            this.setState({ 
-                loggedIn :true,
-                username: username,
-            });
             sessionStorage.setItem('loggedIn', true);
             sessionStorage.setItem('username', username);
         }
@@ -55,8 +51,8 @@ class Login extends React.Component {
     }
 
     render() {
-        const loggedIn = this.state.loggedIn;
-        const username = this.state.username;
+        const loggedIn = sessionStorage.getItem('loggedIn');
+        const username = sessionStorage.getItem('username');
         if(loggedIn) {
             return (
                 <Redirect 

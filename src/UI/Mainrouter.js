@@ -35,14 +35,14 @@ class Mainrouter extends React.Component {
                     </Route>
                     <Route path="/signup" render={props => 
                         loggedIn ?(
-                        <Home {...props} />    
+                        <Redirect to="/home"/>
                         ) :
                         <SignUp />
                     }>
                     </Route>
                     <Route path="/login" render={props => 
                         loggedIn ?(
-                        <Home {...props} />    
+                        <Redirect to="/home"/>
                         ) :
                         <Login />
                     }>
