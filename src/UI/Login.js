@@ -39,6 +39,8 @@ class Login extends React.Component {
                 loggedIn :true,
                 username: username,
             });
+            sessionStorage.setItem('loggedIn', true);
+            sessionStorage.setItem('username', username);
         }
     }
 

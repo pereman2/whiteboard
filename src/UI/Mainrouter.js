@@ -26,6 +26,7 @@ class Mainrouter extends React.Component {
     }
 
     render() {
+        const loggedIn = sessionStorage.getItem('loggedIn')
         return(
             <Router>
                 <Switch>
@@ -39,11 +40,17 @@ class Mainrouter extends React.Component {
                         <SignUp />
                     </Route>
                     <Route path="/home" render={props => 
+                        loggedIn ?(
                         <Home {...props} />    
+                        ) :
+                        <Redirect to="/login"/>
                     }>
                     </Route>
                     <Route path="/board/:id" render={props =>
+                        loggedIn ?(
                         <Board {...props}/>
+                        ) :
+                        <Redirect to="/login"/>
                     }>
                     </Route>
                 </Switch>

@@ -17,8 +17,8 @@ class Home extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
-            username: this.props.location.state.username,
-            user: new User(this.props.location.state.username),
+            username: sessionStorage.getItem('username'),
+            user: new User(sessionStorage.getItem('username')),
         }
     }
 

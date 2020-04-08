@@ -22,13 +22,20 @@ class Board extends React.Component {
 	constructor(props, context) {
 		super(props, context)
 		this.initializeRefs();		
+		this.getRoom();	
 		this.state = {
 			isDown: false,
 			tool: 'Brush',
-			room: this.props.location.state.id,
+			room: this.getRoom(),
 			pushArray: new Array(15),
 			pos: 0,
 		}
+	}
+
+	getRoom = () => {
+		let url = window.location.href;
+		var id = url.substring(url.lastIndexOf('/') + 1);
+		return id;
 	}
 
 	componentDidMount() {
