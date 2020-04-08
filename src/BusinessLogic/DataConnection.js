@@ -5,12 +5,6 @@ import EventEmitter from 'events'
 console.log(adapter.browserDetails.browser)
 console.log(adapter.browserDetails.version)
 
-const mediaConstraints = { 
-	video: {width:200,height:200},
-	audio: true 
-}
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-
 var makingOffer = false;
 var ignoreOffer = false;
 var polite = false;
@@ -55,6 +49,7 @@ class DataConnection extends EventEmitter{
 	handleDataMessage = (message) => {
 		var data = JSON.parse(message.data);
 		if(data.type == "canvas") {
+			console.log(data)
 			this.emit('canvas', data.data);
 		}
 	}

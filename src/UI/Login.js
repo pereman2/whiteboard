@@ -9,6 +9,8 @@ import {
     Redirect
 } from "react-router-dom";
 import User from '../BusinessLogic/User';
+import { useHistory } from "react-router-dom";
+
 
 class Login extends React.Component {
     state = {
@@ -35,8 +37,9 @@ class Login extends React.Component {
         let user = new User(username, password);
         let res = await user.checkLogin();
         if(res) {
-            sessionStorage.setItem('loggedIn', true);
-            sessionStorage.setItem('username', username);
+            window.sessionStorage.setItem('loggedIn', true);
+            window.sessionStorage.setItem('username', username);
+            window.location.reload(false)
         }
     }
 
@@ -51,16 +54,11 @@ class Login extends React.Component {
     }
 
     render() {
-        const loggedIn = sessionStorage.getItem('loggedIn');
-        const username = sessionStorage.getItem('username');
+        const loggedIn = this.state.loggedIn;
         if(loggedIn) {
             return (
                 <Redirect 
-                    to={{
-                        pathname: '/home',
-                        state: { username: username },
-                    }}
-
+                    push to={{pathname: "/home"}}
                 />
             );
         };
@@ -68,7 +66,7 @@ class Login extends React.Component {
             <div id='login-wrapper'>
                 <div className="main-nav">
                     <Link to='/' style={{ textDecoration: 'none' }}>
-                        <div className="nav-home">Chalk talk</div>
+                        <div className="nav-home">Omni-Board</div>
                     </Link>
                     <div className="right-nav">
                         <Link to='/signup' style={{ textDecoration: 'none' }}>

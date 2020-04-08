@@ -26,28 +26,28 @@ class Mainrouter extends React.Component {
     }
 
     render() {
-        const loggedIn = sessionStorage.getItem('loggedIn')
+        const loggedIn = window.sessionStorage.getItem('loggedIn')
         return(
             <Router>
                 <Switch>
                     <Route exact path="/">
                         <Mainpage />
                     </Route>
-                    <Route path="/signup" render={props => 
+                    <Route exact path="/signup" render={props => 
                         loggedIn ?(
                         <Redirect to="/home"/>
                         ) :
                         <SignUp />
                     }>
                     </Route>
-                    <Route path="/login" render={props => 
+                    <Route exact path="/login" render={props => 
                         loggedIn ?(
                         <Redirect to="/home"/>
                         ) :
                         <Login />
                     }>
                     </Route>
-                    <Route path="/home" render={props => 
+                    <Route exact path="/home" render={props => 
                         loggedIn ?(
                         <Home {...props} />    
                         ) :

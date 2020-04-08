@@ -3,7 +3,7 @@ import React from 'react';
 import './Toolbar.css';
 import CircleWidth from './CircleWidth';
 import ColorPicker from './ColorPicker';
-import arrow from '../resources/background/Arrowwhite.png';
+import arrow from '../resources/background/Arrow.png';
 import Eraser from '../BusinessLogic/Eraser';
 import Brush from '../BusinessLogic/Brush';
 import Rectangle from '../BusinessLogic/Rectangle';
@@ -11,7 +11,7 @@ import Circle from '../BusinessLogic/Circle';
 import StraightLine from '../BusinessLogic/StraightLine';
 import DropDown from './DropDown';
 
-var TOOL_STROKE_COLOR ='#94d3ac';
+var TOOL_STROKE_COLOR ='#e3b04b';
 var TOOL_DEFAULT_STROKE_COLOR ='white';
 var CONFIG_DISPLAY = 'flex';
 
@@ -179,12 +179,12 @@ class Toolbar extends React.Component {
                 <div className='toolbar'>
                     <div className='tool-container'>
                         <button onClick={(e) => { this.setTool(e, 'Brush'); }}>
-                            <svg width="42" height="215" viewBox="0 0 42 215" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg width="37" height="114" viewBox="0 0 37 114" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g filter="url(#filter0_d)">
-                                    <path ref={this.toolBrush} id='Brush' className='tool' d="M5 206V49L21 2L37 49V206H5Z" stroke="black" />
+                                    <path ref={this.toolBrush} id='Brush' className='tool' d="M6 27.0392V104H31V27.0392M6 27.0392L18.5 4L31 27.0392M6 27.0392H31" stroke="#E3B04B" stroke-width="3" />
                                 </g>
                                 <defs>
-                                    <filter id="filter0_d" x="0.5" y="0.448471" width="41" height="214.052" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                    <filter id="filter0_d" x="0.5" y="0.854591" width="36" height="112.645" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
                                         <feFlood flood-opacity="0" result="BackgroundImageFix" />
                                         <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
                                         <feOffset dy="4" />
@@ -200,31 +200,18 @@ class Toolbar extends React.Component {
                     </div>
                     <div className='tool-container'>
                         <button onClick={(e) => { this.setTool(e, 'Form'); }}>
-                            <svg width="102" height="102" viewBox="0 0 102 102" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path ref={this.toolForm} id='Form' className='tool' d="M101 1H1V101H101V1Z" stroke="black" />
+                            <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path ref={this.toolForm} id='Form' className='tool' d="M52 2H2V52H52V2Z" stroke="#E3B04B" stroke-width="3" />
                             </svg>
                         </button>
                         <img src={arrow} onClick={(e) => { this.handleArrowOpen(e); }} className='toolarrow' id='form-arrow'></img>
                     </div>
 
                     <div className='tool-container'>
-                        <button onClick={(e) => { this.setTool(e, 'Eraser'); }}> <svg width="91" height="179" viewBox="0 0 91 179" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g filter="url(#filter0_i)">
-                                <path ref={this.toolEraser} id='Eraser' className='tool' d="M1 118V24C47 -27 90 24 90 24V118M1 118V154C45.5 207 90 154 90 154V118M1 118H90" stroke="black" />
-                            </g>
-                            <defs>
-                                <filter id="filter0_i" x="0.5" y="0.833313" width="90" height="181.222" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                                    <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-                                    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
-                                    <feOffset dy="4" />
-                                    <feGaussianBlur stdDeviation="2" />
-                                    <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-                                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
-                                    <feBlend mode="normal" in2="shape" result="effect1_innerShadow" />
-                                </filter>
-                            </defs>
-                        </svg>
+                        <button onClick={(e) => { this.setTool(e, 'Eraser'); }}> 
+                            <svg width="54" height="104" viewBox="0 0 54 104" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path ref={this.toolEraser} id='Eraser' className='tool' d="M2 68.2043V14.8625C27.8427 -14.0782 52 14.8625 52 14.8625V68.2043M2 68.2043V88.633C27 118.709 52 88.633 52 88.633V68.2043M2 68.2043H52" stroke="#E3B04B" stroke-width="3" />
+                            </svg>
                         </button>
                         <img src={arrow} onClick={(e) => { this.handleArrowOpen(e); }} className='toolarrow' id='eraser-arrow'></img>
                     </div>

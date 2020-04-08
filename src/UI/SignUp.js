@@ -34,7 +34,12 @@ class SignUp extends React.Component {
         let user = new User(username, password, email);
         if(!this.validValues()) { return;}
         let res = await user.register();
-        this.checkSignUp(res);
+        let validLogin = this.checkSignUp(res);
+        if(validLogin){
+            window.sessionStorage.setItem('username', username);
+            window.sessionStorage.setItem('loggedIn', true);
+            window.location.reload(false);
+        }
     }
 
     validValues = () => {
@@ -85,17 +90,21 @@ class SignUp extends React.Component {
     checkSignUp = (signUp) => {
         this.resetErrors();
         console.log(signUp)
+        let valid = true;
         if(signUp.registered) {
-            
+            valid = true;
         }
         if(signUp.email) {
             this.emailField.current.classList.add("incorrect-input")
             this.messageAlert.current.innerHTML = "Value already exists"
+            valid = false;
         }
         if(signUp.username) {
             this.usernameField.current.classList.add("incorrect-input")
             this.messageAlert.current.innerHTML = "Value already exists"
+            valid = false;
         }
+        return valid;
     }
 
     getUsername = () => {

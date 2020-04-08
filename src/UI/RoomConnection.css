@@ -1,27 +1,19 @@
 #room {
-    border-style: solid;
-    border-color: black;
-    background-color: white;
     z-index: 200;
     position: absolute;
     top: calc(100% - 200px);
     left: 100px;
-	height: 200px;
+    bottom: 10px;
 	display: flex;
-
 }
-textarea {
-	height: 50px
-}
-#room button {
-    color: white;
-	background: #827397;
-	height: 50px
-}
-
 video {
     height: 100%;
     display: none;
+    margin-bottom: 30px;
+    border-style: solid;
+    border-width: 10px;
+    border-radius: 50%;
+    cursor: grab;
 }
 
 video:not(:first-child) {

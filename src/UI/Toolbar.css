@@ -1,11 +1,13 @@
 .toolbar {
     display: flex;
     width: fit-content;
-    height: 100%;
+    height: fit-content;
     padding: 10px;
     flex-direction: column;
     background-color: black;
     position: absolute;
+    border-radius: 10px;
+    margin: 10px;
 }
 .config {
     display: flex;
@@ -41,8 +43,8 @@ button {
     align-items: center;
 }
 .toolarrow {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
 }
 .toolarrow:hover {
     transform: translateX(3px);

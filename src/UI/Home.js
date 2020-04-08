@@ -31,6 +31,23 @@ class Home extends React.Component {
         })
     }
 
+    logOut = () => {
+        window.sessionStorage.removeItem('loggedIn');
+        window.sessionStorage.removeItem('username');
+        window.location.reload(false)
+    }
+
+    renderLogout = () => {
+        const loggedIn = window.sessionStorage.getItem('loggedIn');
+        if(!loggedIn){
+            return (
+                <Redirect 
+                    to="/login"
+                />
+            );
+        }
+    }
+
     render() {
         const createdRoom = this.state.createdRoom;
         if(createdRoom) {
@@ -42,8 +59,16 @@ class Home extends React.Component {
             );
         }
         return(
-            <div>
-                <div onClick={this.createRoom} className="text-box">Create room</div>
+            <div id="home">
+                <div className="home-nav">
+                    <div id="username">{window.sessionStorage.getItem('username')}</div>
+                    <div id="logout" onClick={this.logOut}>log out</div>
+                </div>
+                <hr></hr>
+                <div className="workspace-list">
+                    Workspaces
+                    <div className="workspace" onClick={this.createRoom}>{this.state.username}</div>
+                </div>
             </div>
         ) ;
         
