@@ -23,7 +23,7 @@ class DataConnection extends EventEmitter{
 
 	connect = async (room) => {
 		this.setSocketEvents();
-		this.dataChannel = this.localPeerConnection.createDataChannel("data", {});
+		this.dataChannel = this.localPeerConnection.createDataChannel("data", {negotiated: true, id: 0});
 		this.dataChannel.onopen = () => {console.log('data channel connected');this.connected = true;}
 		this.dataChannel.onmessage = (data) => {this.handleDataMessage(data);}
 		this.localPeerConnection.onnegotiationneeded = this.handleNegotation;

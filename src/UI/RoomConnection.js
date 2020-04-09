@@ -23,7 +23,7 @@ class RoomConnection extends React.Component {
 		var remoteVideo = document.querySelector("#remoteVideo");
 		console.log(remoteVideo, localVideo);
 		this.socket = this.getRemoteSocket();
-		//this.connection = new roomConnection(this.socket);
+		this.connection = new roomConnection(this.socket);
 		this.dataConnection = new dataConnection(this.socket);
 		this.dataConnection.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
 		
@@ -60,8 +60,8 @@ class RoomConnection extends React.Component {
 	connect = (room) => {
 		console.log(room)
 		this.socket.emit('joinroom', room);
-		//this.connection.connect(room);
-		this.dataConnection.connect(room);
+		this.connection.connect(room);
+		//this.dataConnection.connect(room);
 
 	}
 	render() {
