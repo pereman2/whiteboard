@@ -8,7 +8,7 @@ import Mainpage from './UI/Mainpage';
 import Mainrouter from './UI/Mainrouter';
 
 ReactDOM.render(
-    <Mainrouter />
+    <Board />
     , document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

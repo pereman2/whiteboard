@@ -54,8 +54,7 @@ class RoomConnection extends EventEmitter{
 
 		try {
 			makingOffer = true
-			var offer = await this.localPeerConnection.createOffer();
-			await this.localPeerConnection.setLocalDescription(offer);
+			await this.localPeerConnection.setLocalDescription();
 			this.socket.emit('offer', this.localPeerConnection.localDescription);
 		} catch(error) {
 			console.log(error);
@@ -84,7 +83,7 @@ class RoomConnection extends EventEmitter{
 											this.localPeerConnection.signalingState != 'stable');
 					ignoreOffer = !polite && offerCollision;
 					if(ignoreOffer) {
-            console.log('ignored')
+						console.log('ignored')
 						return;
 					}
 					await this.localPeerConnection.setRemoteDescription(description)
@@ -101,6 +100,7 @@ class RoomConnection extends EventEmitter{
 					}
 				}
 			} catch(error) {
+				console.log(description)
 				console.error(error);
 			}
 		});

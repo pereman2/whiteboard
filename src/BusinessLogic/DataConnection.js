@@ -13,6 +13,7 @@ class DataConnection extends EventEmitter{
 	constructor(socket) {
 		super();
 		this.localPeerConnection = new RTCPeerConnection({
+			rtcpMuxPolicy: "require",
 			iceServers: [
 				{urls: 'stun:stun.l.google.com:19302'},
 			],
@@ -22,20 +23,30 @@ class DataConnection extends EventEmitter{
 
 	connect = async (room) => {
 		this.setSocketEvents();
-		this.dataChannel = this.localPeerConnection.createDataChannel("data", {"negotiated":true, "id":0});
+		this.dataChannel = this.localPeerConnection.createDataChannel("data", {});
 		this.dataChannel.onopen = () => {console.log('data channel connected');this.connected = true;}
 		this.dataChannel.onmessage = (data) => {this.handleDataMessage(data);}
 		this.localPeerConnection.onnegotiationneeded = this.handleNegotation;
 		this.localPeerConnection.addEventListener('icecandidate', this.handleConnection);
+		this.localPeerConnection.ondatachannel = event => {
+			this.dataChannel = event.channel;
+			this.dataChannel.onopen = () => { console.log('data channel connected'); this.connected = true; }
+			this.dataChannel.onmessage = (data) => { this.handleDataMessage(data); }
+		}
 	}
 
 	handleNegotation = async () => {
 		try {
+			makingOffer = true;
+			console.log('making offer')
 			let offer = await this.localPeerConnection.createOffer();
+			console.log(offer)
 			await this.localPeerConnection.setLocalDescription(offer);
 			this.socket.emit('dataoffer', this.localPeerConnection.localDescription);
 		} catch(error) {
 			console.error(error);
+		} finally {
+			makingOffer = false;
 		}
 	}
 	updateCanvas = (canvas) => {
@@ -61,38 +72,67 @@ class DataConnection extends EventEmitter{
 	}
 	setSocketEvents = () => {
 		this.socket.on('datamessages', async (description, candidate) => {
-			try{
-				if(description) {
-					await this.localPeerConnection.setRemoteDescription(description)
-					if(description.type == 'offer') {
+			try {
+				if (description) {
+					let offerCollision = description.type == 'offer' &&
+						(makingOffer ||
+							this.localPeerConnection.signalingState != 'stable');
+					ignoreOffer = !polite && offerCollision;
+					if (ignoreOffer) {
+						console.log(polite, makingOffer, this.localPeerConnection.signalingState);
+						console.log(offerCollision, description.type);
+						console.log('ignored')
+						return;
+					}
+					console.log(description)
+					console.log('setting remote description ' + description.type)
+					let rtcDescription = new RTCSessionDescription(description);
+					console.log(rtcDescription)
+					await this.localPeerConnection.setRemoteDescription(rtcDescription)
+						.catch(error => {console.log(error)});
+					this.remote = true;
+					if (description.type == 'offer') {
 						let answer = await this.localPeerConnection.createAnswer();
+						console.log(answer)
 						await this.localPeerConnection.setLocalDescription(answer);
+						console.log('emitting answer')
 						this.socket.emit('dataanswer', this.localPeerConnection.localDescription);
 					}
-				} else if(candidate) {
-					try{
-						await this.localPeerConnection.addIceCandidate(candidate);
+				} else if (candidate) {
+					try {
+						if(this.remote) {
+							console.log(candidate)
+							await this.localPeerConnection.addIceCandidate(candidate);
+						}
 					} catch (error) {
-						if(!ignoreOffer) throw error;
+						if (!ignoreOffer) throw error;
 					}
 				}
-			} catch(error) {
+			} catch (error) {
+				console.log('xd')
+				this.error = true;
 				console.error(error);
+			} finally {
+				console.log(this.error)
+				if(this.error) {
+					this.localPeerConnection.restartIce();
+				}
 			}
 		});
 
 
 		this.socket.on('connect', function(data) {
-			console.log(data);
+			console.log('socket connect');
 		});
 		this.socket.on('connect_error', function(data) {
-			console.log(data);
+			console.log('socket connect error');
 		});
 		this.socket.on('error', function(data) {
-			console.log(data);
+			console.log('socket error');
 		});
 
 		this.socket.on('created', async (room, socketId) => {
+			console.log('created')
 			polite = true;
 		});
 
@@ -107,6 +147,7 @@ class DataConnection extends EventEmitter{
 		this.socket.on('datanewicecandidates', (room, socketId, iceCandidates) => {
 			this.addIceCandidates(iceCandidates);
 		});
+    this.socket.emit('listening');
 
 	}
 

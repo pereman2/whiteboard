@@ -35,6 +35,7 @@ class Board extends React.Component {
 	getRoom = () => {
 		let url = window.location.href;
 		var id = url.substring(url.lastIndexOf('/') + 1);
+		console.log(id)
 		return id;
 	}
 

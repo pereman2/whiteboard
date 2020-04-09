@@ -8,6 +8,7 @@ import {
     Redirect
 } from "react-router-dom";
 import Login from './Login';
+import boardImg from '../resources/background/xd.png'
 
 class Mainpage extends React.Component {
     state = {
@@ -36,11 +37,12 @@ class Mainpage extends React.Component {
                     </div>
                 </div>
                 <div className="main-text">
-                    <div className="color-yellow" id="title">Talk chalk</div>
+                    <div className="color-yellow" id="title">Tenjinn</div>
                     <div id="title-description">
                         Shared white board with real time
                         video/audio communication
                     </div>
+                    <div id="board-image"></div>
                 </div>
             </div>
         ) ;
