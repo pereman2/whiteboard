@@ -20,11 +20,21 @@ class DataConnection extends EventEmitter{
 		});
 		this.socket = socket;
 		this.clientsInRoom = 1;
+		this.connected = false;
 	}
 
 	connect = async (room) => {
 		this.setSocketEvents();
 		this.socket.emit('status');
+		this.localPeerConnection.addEventListener('connectionstatechange', event => {
+			console.log(this.localPeerConnection.iceConnectionState);
+		})
+		this.localPeerConnection.addEventListener('datachannel', event => {
+			console.log('xdd')
+			this.dataChannel = event.channel;
+			this.dataChannel.onopen = () => { console.log('data channel connected'); this.connected = true; }
+			this.dataChannel.onmessage = (data) => { this.handleDataMessage(data); }
+		});
 	}
 
 	handleNegotation = async () => {
@@ -81,7 +91,14 @@ class DataConnection extends EventEmitter{
 					let rtcDescription = new RTCSessionDescription(description);
 					console.log(rtcDescription)
 					await this.localPeerConnection.setRemoteDescription(rtcDescription)
+						.then(() => console.log('remotedescp ok'))
 						.catch(error => {console.log(error)});
+					console.log(description.type, this.connected)
+					if(description.type == 'answer' && !this.connected) { 
+						console.log('newwannaoffer')
+						this.localPeerConnection.restartIce();
+						this.socket.emit('wannaoffer', 'ask');
+					}
 					this.remote = true;
 					if (description.type == 'offer') {
 						let answer = await this.localPeerConnection.createAnswer();
@@ -107,7 +124,6 @@ class DataConnection extends EventEmitter{
 			} finally {
 				console.log(this.error)
 				if(this.error) {
-					this.localPeerConnection.restartIce();
 				}
 			}
 		});
@@ -123,12 +139,6 @@ class DataConnection extends EventEmitter{
 			console.log(msg)
 			if(msg == 'ask') {
 				polite = true;
-				this.localPeerConnection.ondatachannel = event => {
-					console.log('xdd')
-					this.dataChannel = event.channel;
-					this.dataChannel.onopen = () => { console.log('data channel connected'); this.connected = true; }
-					this.dataChannel.onmessage = (data) => { this.handleDataMessage(data); }
-				}
 				this.socket.emit('wannaoffer', 'ok')
 
 			} else {
