@@ -60,7 +60,7 @@ class RoomConnection extends React.Component {
 	connect = (room) => {
 		console.log(room)
 		this.socket.emit('joinroom', room);
-		//this.connection.connect(room);
+		this.connection.connect(room);
 		this.dataConnection.connect(room);
 
 	}
