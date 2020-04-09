@@ -19,20 +19,12 @@ class DataConnection extends EventEmitter{
 			],
 		});
 		this.socket = socket;
+		this.clientsInRoom = 1;
 	}
 
 	connect = async (room) => {
 		this.setSocketEvents();
-		this.dataChannel = this.localPeerConnection.createDataChannel("data", {negotiated: true, id: 0});
-		this.dataChannel.onopen = () => {console.log('data channel connected');this.connected = true;}
-		this.dataChannel.onmessage = (data) => {this.handleDataMessage(data);}
-		this.localPeerConnection.onnegotiationneeded = this.handleNegotation;
-		this.localPeerConnection.addEventListener('icecandidate', this.handleConnection);
-		this.localPeerConnection.ondatachannel = event => {
-			this.dataChannel = event.channel;
-			this.dataChannel.onopen = () => { console.log('data channel connected'); this.connected = true; }
-			this.dataChannel.onmessage = (data) => { this.handleDataMessage(data); }
-		}
+		this.socket.emit('status');
 	}
 
 	handleNegotation = async () => {
@@ -120,6 +112,33 @@ class DataConnection extends EventEmitter{
 			}
 		});
 
+		this.socket.on('status', (room, clientsInRoom) => {
+			if(this.clientsInRoom != clientsInRoom) {
+				this.clientsInRoom = clientsInRoom;
+				this.socket.emit('wannaoffer', 'ask');
+			}
+		});
+
+		this.socket.on('wannaoffer', msg => {
+			console.log(msg)
+			if(msg == 'ask') {
+				polite = true;
+				this.localPeerConnection.ondatachannel = event => {
+					console.log('xdd')
+					this.dataChannel = event.channel;
+					this.dataChannel.onopen = () => { console.log('data channel connected'); this.connected = true; }
+					this.dataChannel.onmessage = (data) => { this.handleDataMessage(data); }
+				}
+				this.socket.emit('wannaoffer', 'ok')
+
+			} else {
+				this.dataChannel = this.localPeerConnection.createDataChannel("data", {});
+				this.dataChannel.onopen = () => { console.log('data channel connected'); this.connected = true; }
+				this.dataChannel.onmessage = (data) => { this.handleDataMessage(data); }
+				this.localPeerConnection.onnegotiationneeded = this.handleNegotation;
+				this.localPeerConnection.addEventListener('icecandidate', this.handleConnection);
+			}
+		});
 
 		this.socket.on('connect', function(data) {
 			console.log('socket connect');
@@ -133,7 +152,6 @@ class DataConnection extends EventEmitter{
 
 		this.socket.on('created', async (room, socketId) => {
 			console.log('created')
-			polite = true;
 		});
 
 		this.socket.on('joined', (room, socketId, offer) => {
