@@ -31,15 +31,15 @@ class RoomConnection extends React.Component {
 
 	startConection = (rol, connectionId) => {
 		console.log(rol, connectionId)
-		let dataConnection = new dataConnection(this.socket, rol, connectionId);
-		dataConnection.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
-		dataConnection.connect(this.state.room);
-		this.dataConnections.push(dataConnection);
+		let dataConn = new dataConnection(this.socket, rol, connectionId);
+		dataConn.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
+		dataConn.connect(this.state.room);
+		this.dataConnections.push(dataConn);
 	}
 
 	updateCanvas = (canvasImg) => {
-		this.dataConnections.forEach(dataConnection => {
-			dataConnection.updateCanvas(canvasImg);
+		this.dataConnections.forEach(dataConn => {
+			dataConn.updateCanvas(canvasImg);
 			
 		});
 	}
