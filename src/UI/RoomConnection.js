@@ -34,11 +34,11 @@ class RoomConnection extends React.Component {
 		let dataConn = new dataConnection(this.socket, rol, connectionId);
 		dataConn.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
 		dataConn.connect(this.state.room);
-		this.dataConnections.push(dataConn);
+		this.state.dataConnections.push(dataConn);
 	}
 
 	updateCanvas = (canvasImg) => {
-		this.dataConnections.forEach(dataConn => {
+		this.state.dataConnections.forEach(dataConn => {
 			dataConn.updateCanvas(canvasImg);
 			
 		});
