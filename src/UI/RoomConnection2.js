@@ -1,7 +1,7 @@
 import React from 'react';
 import './RoomConnection.css';
 import roomConnection from '../BusinessLogic/RoomConnection';
-import dataConnection from '../BusinessLogic/DataConnection';
+import dataConnection from '../BusinessLogic/DataConnection2';
 import EventEmitter from 'events'
 import io from 'socket.io-client';
 
@@ -22,22 +22,16 @@ class RoomConnection extends React.Component {
 		var localVideo = document.querySelector("#localVideo");
 		var remoteVideo = document.querySelector("#remoteVideo");
 		console.log(remoteVideo, localVideo);
-		this.socket = this.getRemoteSocket();
-		this.socket.on('newconnection', (rol, connectionId) => {this.startConection(rol, connectionId)});
-		//this.connection = new roomConnection(this.socket);
+		this.socket = this.getLocalSocket();
+		this.connection = new roomConnection(this.socket);
+		this.dataConnection = new dataConnection(this.socket);
+		this.dataConnection.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
 		
 	}
 
-	startConection = (rol, connectionId) => {
-		console.log(rol, connectionId)
-		this.dataConnection = new dataConnection(this.socket, rol, connectionId);
-		this.dataConnection.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
-		this.dataConnection.connect(this.state.room);
-	}
-
-	updateCanvas = (canvasImg) => {
-		//this.dataConnection.updateCanvas(canvasImg);
-	}
+  updateCanvas = (canvasImg) => {
+    this.dataConnection.updateCanvas(canvasImg);
+  }
 
 	getLocalSocket = () => {
 		var socket = io.connect('ws://localhost:8000',
@@ -67,6 +61,7 @@ class RoomConnection extends React.Component {
 		console.log(room)
 		this.socket.emit('joinroom', room);
 		//this.connection.connect(room);
+		this.dataConnection.connect(room);
 
 	}
 	render() {
