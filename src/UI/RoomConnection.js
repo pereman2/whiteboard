@@ -9,7 +9,8 @@ class RoomConnection extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 		this.state = {
-			room: props.room
+			room: props.room,
+			dataConnections: []
 		}
 	}
 
@@ -30,13 +31,17 @@ class RoomConnection extends React.Component {
 
 	startConection = (rol, connectionId) => {
 		console.log(rol, connectionId)
-		this.dataConnection = new dataConnection(this.socket, rol, connectionId);
-		this.dataConnection.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
-		this.dataConnection.connect(this.state.room);
+		let dataConnection = new dataConnection(this.socket, rol, connectionId);
+		dataConnection.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
+		dataConnection.connect(this.state.room);
+		this.dataConnections.push(dataConnection);
 	}
 
 	updateCanvas = (canvasImg) => {
-		//this.dataConnection.updateCanvas(canvasImg);
+		this.dataConnections.forEach(dataConnection => {
+			dataConnection.updateCanvas(canvasImg);
+			
+		});
 	}
 
 	getLocalSocket = () => {
