@@ -5,36 +5,65 @@ import dataConnection from '../BusinessLogic/DataConnection';
 import EventEmitter from 'events'
 import io from 'socket.io-client';
 
+const mediaConstraints = { 
+	video: {width:200,height:200},
+	audio: true 
+}
+
 class RoomConnection extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 		this.state = {
 			room: props.room,
-			dataConnections: []
+			dataConnections: [],
+			mediaConnections: [],
 		}
 	}
 
 	componentDidMount() {
+		if(!this.state.localVideoOn) {
+			this.startLocalVideo();
+		}
 		this.initializeConnection();
-		this.connect(this.state.room);
 	}
 
+	startLocalVideo = async() => {
+		console.log('video')
+		var localVideo = document.querySelector("#localVideo");
+		if(!this.state.localVideoOn){
+			try {
+				const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+				this.setState({ stream: stream });
+				localVideo.srcObject = stream;
+				localVideo.play()
+				localVideo.style.display = 'inherit'
+				this.setState({ localVideoOn: true });
+			} catch (error) {
+				console.error(error);
+			}
+		}
+		this.connect(this.state.room);
+		console.log('xd')
+	}
 	initializeConnection() {
 		var localVideo = document.querySelector("#localVideo");
-		var remoteVideo = document.querySelector("#remoteVideo");
-		console.log(remoteVideo, localVideo);
 		this.socket = this.getRemoteSocket();
-		this.socket.on('newconnection', (rol, connectionId) => {this.startConection(rol, connectionId)});
-		//this.connection = new roomConnection(this.socket);
+		this.socket.on('newconnection', (rol, connectionId) => {
+			this.startConection(rol, connectionId);
+		});
 		
 	}
 
-	startConection = (rol, connectionId) => {
+	startConection = async (rol, connectionId) => {
 		console.log(rol, connectionId)
+		console.log('start connection');
+		let mediaConnection = new roomConnection(this.socket, rol, connectionId, this.state.stream);
 		let dataConn = new dataConnection(this.socket, rol, connectionId);
 		dataConn.on('canvas', (canvas) => { this.props.onCanvasUpdate(canvas); });
 		dataConn.connect(this.state.room);
+		mediaConnection.connect(this.state.room);
 		this.state.dataConnections.push(dataConn);
+		this.state.mediaConnections.push(mediaConnection);
 	}
 
 	updateCanvas = (canvasImg) => {
@@ -71,14 +100,12 @@ class RoomConnection extends React.Component {
 	connect = (room) => {
 		console.log(room)
 		this.socket.emit('joinroom', room);
-		//this.connection.connect(room);
 
 	}
 	render() {
 		return (
 			<div id='room'>
 				<video id='localVideo' className='box' muted></video>
-				<video id='remoteVideo' className='box'></video>
 				<audio id='remoteAudio'></audio>
 			</div>
 		);

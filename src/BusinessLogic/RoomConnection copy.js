@@ -16,7 +16,7 @@ var ignoreOffer = false;
 var polite = false;
 
 class RoomConnection extends EventEmitter{
-	constructor(socket, rol, connectionId, stream) {
+	constructor(socket) {
 		super();
 		this.localPeerConnection = new RTCPeerConnection({
 			iceServers: [
@@ -26,59 +26,36 @@ class RoomConnection extends EventEmitter{
 			offerToReceiveAudio: true,
 		});
 		this.socket = socket;
-		this.connectionId = connectionId;
-		this.rol = rol;
-		this.connectionType = 'media';
-		console.log('constructor')
-		for(const track of stream.getTracks()) {
-			console.log(track)
-			this.localPeerConnection.addTrack(track, stream);
-		}
-		let remoteVideo = document.createElement("video");
-		remoteVideo.className = "remoteVideo"+connectionId;
-		remoteVideo.classList.add("box");
-		this.remoteVideo = remoteVideo
-		document.querySelector("#room").appendChild(remoteVideo);
-		this.initializeRol();
-		this.localPeerConnection._negotiating = false;
-	}
-
-	initializeRol = () => {
-		if(this.rol == 'answerer') {
-			polite = true;
-		} else {
-		}
 	}
 
 	connect = async (room) => {
-		console.log('connect')
+		var localVideo = document.querySelector("#localVideo");
+		try{
+			//let constraints = await this.getMediaConstraints();
+			const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+			for(const track of stream.getTracks()) {
+				this.localPeerConnection.addTrack(track, stream);
+			}
+			localVideo.srcObject = stream;		
+			localVideo.play()
+			localVideo.style.display = 'inherit'
+		} catch(error) {
+			console.error(error);
+		}
 		this.setSocketEvents();
 		this.localPeerConnection.ontrack = this.onTrackHandler;
 		this.localPeerConnection.onnegotiationneeded = this.handleNegotation;
 		this.localPeerConnection.addEventListener('icecandidate', this.handleConnection);
-		this.localPeerConnection.onsignalingstatechange = (e) => {
-			this.localPeerConnection._negotiating = 
-				(this.localPeerConnection.signalingState != "stable");
-		}
 		this.iceCandidates = []
 	}
 
-	start = () => {
-	}
-
 	handleNegotation = async () => {
-		console.log(this.rol)
-		if(this.localPeerConnection._negotiating || this.rol == 'answerer') return;
+		//this.createOffer()
+
 		try {
-			console.log('---> CREATING OFFER')
 			makingOffer = true
-			let offer = this.localPeerConnection.createOffer();
-			await this.localPeerConnection.setLocalDescription(offer);
-			this.socket.emit('dataoffer', 
-				this.localPeerConnection.localDescription,
-				this.connectionId,
-				this.connectionType
-			);
+			await this.localPeerConnection.setLocalDescription();
+			this.socket.emit('offer', this.localPeerConnection.localDescription);
 		} catch(error) {
 			console.log(error);
 		} finally {
@@ -86,8 +63,7 @@ class RoomConnection extends EventEmitter{
 		}
 	}
 	onTrackHandler = (event) => {
-		var remoteVideo = this.remoteVideo;
-		console.log('track')
+		var remoteVideo = document.querySelector("#remoteVideo");
 		event.track.onunmute = () => {
 			if(remoteVideo.srcObject) return;
 			remoteVideo.srcObject = event.streams[0];
@@ -99,26 +75,35 @@ class RoomConnection extends EventEmitter{
 	}
 
 	setSocketEvents = () => {
-		this.socket.on('datamessages', async (description, candidate, connectionId, connectionType) => {
-			console.log(description, candidate)
-			if(connectionId == this.connectionId && connectionType == this.connectionType) {
-				this.handleSocketMessage(description, candidate);
+		this.socket.on('messages', async (description, candidate) => {
+			try{
+				if(description) {
+					let offerCollision = description.type == 'offer' && 
+											(makingOffer ||
+											this.localPeerConnection.signalingState != 'stable');
+					ignoreOffer = !polite && offerCollision;
+					if(ignoreOffer) {
+						console.log('ignored')
+						return;
+					}
+					await this.localPeerConnection.setRemoteDescription(description)
+					if(description.type == 'offer') {
+						let answer = await this.localPeerConnection.createAnswer();
+						await this.localPeerConnection.setLocalDescription(answer);
+						this.socket.emit('answer', this.localPeerConnection.localDescription);
+					}
+				} else if(candidate) {
+					try{
+						await this.localPeerConnection.addIceCandidate(candidate);
+					} catch (error) {
+						if(!ignoreOffer) throw error;
+					}
+				}
+			} catch(error) {
+				console.log(description)
+				console.error(error);
 			}
 		});
-
-		this.socket.on('wannaoffer', (msg, connectionId, connectionType) => {
-			if (connectionId == this.connectionId && connectionType == this.connectionType) {
-				console.log(msg)
-				if (msg == 'ask') {
-					console.log('emitting ok')
-					this.socket.emit('wannaoffer', 'ok', this.rol, this.connectionId, this.connectionType);
-					polite = true;
-				} else {
-					console.log('received ok')
-					this.start();
-				}
-			}
-		} );
 		this.socket.on('connect', function(data) {
 			console.log(data);
 		});
@@ -130,7 +115,7 @@ class RoomConnection extends EventEmitter{
 		});
 
 		this.socket.on('created', async (room, socketId) => {
-			console.log('created')
+      console.log('created')
 			polite = true;
 		});
 
@@ -147,6 +132,7 @@ class RoomConnection extends EventEmitter{
 			console.log(iceCandidates);
 			this.addIceCandidates(iceCandidates);
 		});
+    this.socket.emit('listening');
 	}
 
 	gotLocalMediaStream = stream => {
@@ -166,7 +152,7 @@ class RoomConnection extends EventEmitter{
 	handleConnection = event => {
 		const peerConnection = event.target;
 		const iceCandidate = event.candidate;
-		this.socket.emit('dataicecandidate', iceCandidate, this.connectionId, this.rol, this.connectionType);
+		this.socket.emit('icecandidate', iceCandidate);
 	}
 
 	addIceCandidates = (iceCandidates) => {
@@ -193,42 +179,32 @@ class RoomConnection extends EventEmitter{
 		console.log('handle connection failure')
 	}
 
-	handleSocketMessage = async (description, candidate) => {
-		try {
-			if (description) {
-				console.log(description.type)
-				let offerCollision = description.type == 'offer' &&
-					(makingOffer ||
-						this.localPeerConnection.signalingState != 'stable');
-				ignoreOffer = !polite && offerCollision;
-				if (ignoreOffer) {
-					console.log('ignored')
-					return;
-				}
-				await this.localPeerConnection.setRemoteDescription(description)
-					.then(() => console.log('remoteok'))
-				if (description.type == 'offer') {
-					let answer = await this.localPeerConnection.createAnswer();
-					console.log(this.localPeerConnection.signalingState)
-					console.log(this.localPeerConnection.connectionState)
-					await this.localPeerConnection.setLocalDescription(answer);
-					this.socket.emit('dataanswer',
-						this.localPeerConnection.localDescription,
-						this.connectionId,
-						this.connectionType
-					);
-				}
-			} else if (candidate) {
-				try {
-					console.log(candidate)
-					await this.localPeerConnection.addIceCandidate(candidate);
-				} catch (error) {
-					if (!ignoreOffer) throw error;
-				}
+	setDataChannelEvents = () => {
+		this.dataChannel.onmessage = (message) => { console.log(message) };
+	}
+
+	getLocalSocket = () => {
+		var socket = io.connect('ws://localhost:8000',
+			{
+				reconnect: true,
+				transports: ['websocket'],
+				path: '/socket.io'
 			}
-		} catch (error) {
-			console.error(error);
-		}
+		);
+		return socket
+	}
+
+	getRemoteSocket = () => {
+		var socket = io.connect('wss://pizarrabackend.herokuapp.com',
+			{
+				reconnect: true,
+				transports: ['websocket'],
+				path: '/socket.io',
+				protocol: window.location.protocol === 'https:' ? 'wss' : 'ws',
+
+			}
+		);
+		return socket
 	}
 	getMediaConstraints = async () => {
 		let permissions = await this.getMediaPermissions();	

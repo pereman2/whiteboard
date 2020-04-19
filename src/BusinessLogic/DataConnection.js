@@ -21,13 +21,14 @@ class DataConnection extends EventEmitter{
 		this.connectionId = connectionId;
 		this.socket = socket;
 		this.connected = false;
+		this.connectionType = 'data';
 		this.initializeRol();
 	}
 	initializeRol = () => {
 		if(this.rol == 'answerer') {
 			polite = true;
 		} else {
-			this.socket.emit('wannaoffer', 'ask', this.rol, this.connectionId);
+			this.socket.emit('wannaoffer', 'ask', this.rol, this.connectionId, 'data');
 		}
 	}
 	connect = async (room) => {
@@ -57,7 +58,8 @@ class DataConnection extends EventEmitter{
 			await this.localPeerConnection.setLocalDescription(offer);
 			this.socket.emit('dataoffer', 
 				this.localPeerConnection.localDescription,
-				this.connectionId
+				this.connectionId,
+				'data'
 			);
 		} catch(error) {
 			console.error(error);
@@ -84,7 +86,7 @@ class DataConnection extends EventEmitter{
 	handleConnection = event => {
 		const peerConnection = event.target;
 		const iceCandidate = event.candidate;
-		this.socket.emit('dataicecandidate', iceCandidate, this.connectionId, this.rol);
+		this.socket.emit('dataicecandidate', iceCandidate, this.connectionId, this.rol, 'data');
 	}
 
 	start = () => {
@@ -97,18 +99,23 @@ class DataConnection extends EventEmitter{
 
 	}
 	setSocketEvents = () => {
-		this.socket.on('datamessages', async (description, candidate) => {
-			this.handleSocketMessage(description, candidate);
+		this.socket.on('datamessages', async (description, candidate, connectionId, connectionType) => {
+			console.log(connectionId, this.connectionId)
+			if(connectionId == this.connectionId && connectionType == this.connectionType) {
+				this.handleSocketMessage(description, candidate);
+			}
 		});
-		this.socket.on('wannaoffer', (msg) => {
-			console.log(msg)
-			if(msg == 'ask') {
-				console.log('emitting ok')
-				this.socket.emit('wannaoffer', 'ok', this.rol, this.connectionId);
-				polite = true;
-			} else {
-				console.log('received ok')
-				this.start();
+		this.socket.on('wannaoffer', (msg, connectionId, connectionType) => {
+			if (connectionId == this.connectionId && connectionType == this.connectionType) {
+				console.log(msg)
+				if (msg == 'ask') {
+					console.log('emitting ok')
+					this.socket.emit('wannaoffer', 'ok', this.rol, this.connectionId, 'data');
+					polite = true;
+				} else {
+					console.log('received ok')
+					this.start();
+				}
 			}
 		} );
 
@@ -170,7 +177,8 @@ class DataConnection extends EventEmitter{
 					console.log('emitting answer')
 					this.socket.emit('dataanswer', 
 						this.localPeerConnection.localDescription,
-						this.connectionId
+						this.connectionId,
+						'data'
 					);
 				}
 			} else if (candidate) {
