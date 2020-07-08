@@ -37,12 +37,14 @@ class Mainpage extends React.Component {
                     </div>
                 </div>
                 <div className="main-text">
-                    <div className="color-yellow" id="title">Tenjinn</div>
+                    <div className="color-yellow" id="title">Twelve Bou</div>
                     <div id="title-description">
                         Shared white board with real time
                         video/audio communication
                     </div>
-                    <div id="board-image"></div>
+                    <Link to="/tryboard">
+                        <div id="board-image"></div>
+                    </Link>
                 </div>
             </div>
         ) ;

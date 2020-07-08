@@ -22,18 +22,30 @@
     cursor: pointer;
 }
 
-.workspace-list {
+.workspaces {
     height: 50%;
     width: 80%;
+    margin-top: 100px;
+}
+.workspace-list {
+    height: 100%;
+    width: fit-content;
     color: white;
     font-size: 3em;
-    margin-top: 20px;
+    padding: 10px;
+    border-style: solid;
+    border-radius: 10px;
+    border-color: #f1d6ab;
+}
+
+.section-title {
+    color: white;
+    font-size: 2em;
 }
 
 .workspace{
     height: 100px;
     width: 300px;
-    margin-top: 10px;
     vertical-align: middle;
     line-height: 50px;
     text-align: center;
@@ -42,7 +54,7 @@
     border-radius: 10px;
     font-size: 0.5em;
     color: black;
-    background-color: #e3b04b;
+    background-color: #e3b04ba9;
     border-style: solid;
     border: 3px solid #000000;
     box-sizing: border-box;

@@ -65,9 +65,11 @@ class Home extends React.Component {
                     <div id="logout" onClick={this.logOut}>log out</div>
                 </div>
                 <hr></hr>
-                <div className="workspace-list">
-                    Workspaces
-                    <div className="workspace" onClick={this.createRoom}>{this.state.username}</div>
+                <div className="workspaces">
+                    <div className="section-title">Workspaces</div>
+                    <div className="workspace-list">
+                        <div className="workspace" onClick={this.createRoom}>{this.state.username}</div>
+                    </div>
                 </div>
             </div>
         ) ;

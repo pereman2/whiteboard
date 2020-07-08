@@ -1,18 +1,15 @@
 class Form {
-    constructor(width, color, posActual) {
-        if ((typeof posActual != 'object')) {
-            throw new Error('Posicion formato incorrecto( {x:x,y:y})')
-        }
-        this.width = width;
+    constructor(formWidth, color, posActual) {
+        this.formWidth = formWidth;
         this.color = color;
         this.posActual = posActual;
     }
 
-    setWidth(width) {
-        this.width = width;
+    setWidth(formWidth) {
+        this.formWidth = formWidth;
     }
     getWidth() {
-        return this.width;
+        return this.formWidth;
     }
     getContext() {
         return this.ctx;
@@ -34,12 +31,18 @@ class Form {
         this.posAnterior = posAnterior;
     }
     actualizarPos(newPos) {
+        console.log(newPos)
         this.setPosAnterior(this.posActual);
         this.setPosActual(newPos); 
     }
     setCanvas(canvas) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
+    }
+
+    setGhostCanvas(canvas) {
+        this.gctx = canvas.getContext('2d');
+        this.gcanvas = canvas;
     }
 }
 

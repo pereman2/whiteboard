@@ -12,7 +12,8 @@ import Login from './Login';
 import SignUp from './SignUp';
 import Mainpage from './Mainpage';
 import Home from './Home'
-import Board from './Board'
+import Board from './Board/Board'
+import FreeBoard from './Board/FreeBoard';
 
 
 class Mainrouter extends React.Component {
@@ -60,6 +61,9 @@ class Mainrouter extends React.Component {
                         ) :
                         <Redirect to="/login"/>
                     }>
+                    </Route>
+                    <Route path="/tryboard">
+                        <FreeBoard/>
                     </Route>
                 </Switch>
             </Router>

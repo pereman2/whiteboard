@@ -3,12 +3,12 @@
     width: 100%;
     overflow: hidden;
     position: relative; /*necesario para el overflow*/
-cursor: url('../resources/background/cursor.png') 12.5 12.5, auto ;
+    cursor: url('../../resources/background/cursor.png') 12.5 12.5, auto ;
 }
 #Board {
     background-color: transparent;
     border-style: outset;
     position: absolute;
-    background-image: url('../resources/background/Fondo.png');
+    background-image: url('../../resources/background/Fondo.png');
     background-size: cover;
 }

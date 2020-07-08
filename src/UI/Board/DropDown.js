@@ -1,8 +1,8 @@
 import React from 'react';
 import './DropDown.css';
-import Rectangle from '../resources/background/Square.png';
-import Circle from '../resources/background/Circle.png';
-import StraightLine from '../resources/background/Line.png';
+import Rectangle from '../../resources/background/Square.png';
+import Circle from '../../resources/background/Circle.png';
+import StraightLine from '../../resources/background/Line.png';
 
 
 class DropDown extends React.Component {

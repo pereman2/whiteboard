@@ -3,13 +3,14 @@ import React from 'react';
 import './Toolbar.css';
 import CircleWidth from './CircleWidth';
 import ColorPicker from './ColorPicker';
-import arrow from '../resources/background/Arrow.png';
-import Eraser from '../BusinessLogic/Eraser';
-import Brush from '../BusinessLogic/Brush';
-import Rectangle from '../BusinessLogic/Rectangle';
-import Circle from '../BusinessLogic/Circle';
-import StraightLine from '../BusinessLogic/StraightLine';
+import arrow from '../../resources/background/Arrow.png';
+import Eraser from '../../BusinessLogic/Eraser';
+import Brush from '../../BusinessLogic/Brush';
+import Rectangle from '../../BusinessLogic/Rectangle';
+import Circle from '../../BusinessLogic/Circle';
+import StraightLine from '../../BusinessLogic/StraightLine';
 import DropDown from './DropDown';
+import FileHolder from './FileHolder';
 
 var TOOL_STROKE_COLOR ='#e3b04b';
 var TOOL_DEFAULT_STROKE_COLOR ='white';
@@ -63,6 +64,12 @@ class Toolbar extends React.Component {
             form: rectangle,
             forms: forms,
             tools: tools,
+            rectangleConfig: {
+                width: FORM_DEFAULT_CONFIG.width,
+                height: FORM_DEFAULT_CONFIG.height,
+                color: FORM_DEFAULT_CONFIG.color,
+                pos: pos,
+            },
         }
     }
 
@@ -97,7 +104,10 @@ class Toolbar extends React.Component {
         if(tool === 'Brush') {
             this.state.line.setWidth(event.state.width)
         } else if(tool === 'Form') {
-            this.state.form.setWidth(event.state.width)
+            this.state.form.setWidth(event.state.width);
+            let config = this.state.rectangleConfig;
+            config.width = event.state.width;
+            this.setState({ rectangleConfig: config })
         } else if(tool ==='Eraser') {
             this.state.lineErase.setWidth(event.state.width)
         }
@@ -108,6 +118,9 @@ class Toolbar extends React.Component {
             this.state.line.setColor(color.hex);
         } else if(tool === 'Form') {
             this.state.form.setColor(color.hex);
+            let config = this.state.rectangleConfig;
+            config.color = color.hex;
+            this.setState({ rectangleConfig: config })
         }
     }
 
@@ -145,6 +158,11 @@ class Toolbar extends React.Component {
             form: this.state.form, 
         }
         return tools;
+    }
+
+    getRectangleConfig = () => {
+        console.log(this.state.rectangleConfig)
+        return this.state.rectangleConfig;
     }
 
     handleFormClicked = (form) => {

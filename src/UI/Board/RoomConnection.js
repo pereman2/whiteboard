@@ -1,7 +1,7 @@
 import React from 'react';
 import './RoomConnection.css';
-import roomConnection from '../BusinessLogic/RoomConnection';
-import dataConnection from '../BusinessLogic/DataConnection';
+import roomConnection from '../../BusinessLogic/RoomConnection';
+import dataConnection from '../../BusinessLogic/DataConnection';
 import EventEmitter from 'events'
 import io from 'socket.io-client';
 
@@ -21,10 +21,10 @@ class RoomConnection extends React.Component {
 	}
 
 	componentDidMount() {
-		if(!this.state.localVideoOn) {
-			this.startLocalVideo();
-		}
-		this.initializeConnection();
+		//if(!this.state.localVideoOn) {
+		//	this.startLocalVideo();
+		//}
+		//this.initializeConnection();
 	}
 
 	startLocalVideo = async() => {

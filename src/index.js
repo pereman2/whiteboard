@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import Board from './UI/Board'
+import Board from './UI/Board/Board'
 import * as serviceWorker from './serviceWorker';
 import Mainpage from './UI/Mainpage';
 import Mainrouter from './UI/Mainrouter';

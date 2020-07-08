@@ -4,7 +4,7 @@
 }
 .color-container {
     background: rgb(154, 255, 0) none repeat scroll 0% 0%;
-    background-image: url('../resources/background/picker_mask.png');
+    background-image: url('../../resources/background/picker_mask.png');
     background-size: contain;
     width: 100px;
     height: 100px;

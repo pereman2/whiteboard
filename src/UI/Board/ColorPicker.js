@@ -1,8 +1,6 @@
 import React from 'react';
 import './ColorPicker.css';
 import { ChromePicker } from 'react-color';
-import background from '../resources/background/picker_mask.png';
-import { MDBCard, MDBCardBody } from "mdbreact";
 
 
 

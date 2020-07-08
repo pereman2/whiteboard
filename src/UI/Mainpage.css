@@ -38,6 +38,7 @@
     background-image: url('../resources/background/xd.png');
     background-size: cover;
     margin-top: 30px;
+    cursor: pointer;
 }
 .text-box {
     padding: 15px;

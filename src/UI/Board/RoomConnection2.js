@@ -1,7 +1,7 @@
 import React from 'react';
 import './RoomConnection.css';
-import roomConnection from '../BusinessLogic/RoomConnection';
-import dataConnection from '../BusinessLogic/DataConnection2';
+import roomConnection from '../../BusinessLogic/RoomConnection';
+import dataConnection from '../../BusinessLogic/DataConnection2';
 import EventEmitter from 'events'
 import io from 'socket.io-client';
 
@@ -60,7 +60,7 @@ class RoomConnection extends React.Component {
 	connect = (room) => {
 		console.log(room)
 		this.socket.emit('joinroom', room);
-		//this.connection.connect(room);
+		this.connection.connect(room);
 		this.dataConnection.connect(room);
 
 	}

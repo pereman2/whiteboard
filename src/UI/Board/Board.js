@@ -2,6 +2,8 @@ import React from 'react';
 import './Board.css';
 import Toolbar from './Toolbar';
 import RoomConnection from './RoomConnection';
+import FileHolder from './FileHolder';
+import FormFactory from '../../BusinessLogic/FormFactory'
 
 
 
@@ -17,18 +19,31 @@ const constraints = window.constraints = {
 	audio: true
 }
 
+const selectionConfig = {
+	color: "red",
+	width: 2,
+}
+
 class Board extends React.Component {
 
 	constructor(props, context) {
 		super(props, context)
-		this.initializeRefs();		
-		this.getRoom();	
+		this.initializeRefs();
+		this.getRoom();
 		this.state = {
 			isDown: false,
 			tool: 'Brush',
 			room: this.getRoom(),
 			pushArray: new Array(15),
 			pos: 0,
+			canvasValid: true,
+			selection: null,
+			selectionX: 0,
+			selectionY: 0,
+			selectionY: 0,
+			selectionWidth: 0,
+			selectionHeight: 0,
+			isDrag: false,
 		}
 	}
 
@@ -50,41 +65,63 @@ class Board extends React.Component {
 			lineErase: lineErase,
 			form: form,
 			tools: tools,
+			boxes: [],
+			formFactory: new FormFactory(this.toolbar.current),
 		});
 		this.setToolsCanvas(this.getCanvas());
-		this.setListener();		
+		this.setListener();
+		this.init2();
 	}
 
-	setListener = () => {				
+	init2 = () => {
+		let board = document.querySelector('.Board');
+		let canvas = document.querySelector('#Board');
+		let height = canvas.clientHeight;
+		let width = canvas.clientWidth;
+		let ghostcanvas = document.createElement('canvas');
+		let gctx = ghostcanvas.getContext('2d')
+		ghostcanvas.height = height;
+		ghostcanvas.width = width;
+		ghostcanvas.id = 'ghostcanvas';
+		board.appendChild(ghostcanvas)
+		this.setState({
+			ghostcanvas: ghostcanvas,
+			gctx: gctx,
+			canvas: canvas,
+			ctx: canvas.getContext('2d'),
+		})
+	}
+
+	setListener = () => {
 		document.addEventListener('keydown', (e) => this.isKeysCombination(e));
 	}
 
-	isKeysCombination = (event) => {		
+	isKeysCombination = (event) => {
 		if (event.ctrlKey && event.key === 'z') {
-			this.canvasUndo();					
+			this.canvasUndo();
 		}
 		else if (event.ctrlKey && event.key === 'y') {
 			this.canvasRedo();
-		}	
+		}
 	}
 
-	canvasPush = () => {		
-		var lastCanvasImg = document.getElementById('Board').toDataURL();		
-    this.roomConnection.current.updateCanvas(lastCanvasImg);
-		if(this.state.pos == 0) {					
-			this.updatePushArray(lastCanvasImg);			
+	canvasPush = () => {
+		var lastCanvasImg = document.getElementById('Board').toDataURL();
+		this.roomConnection.current.updateCanvas(lastCanvasImg);
+		if (this.state.pos == 0) {
+			this.updatePushArray(lastCanvasImg);
 		}
 		else {
 			this.removeUnusedElements(lastCanvasImg);
 			this.setState({ pos: 0, });
-		}		
+		}
 	}
 
 	toStringCanvas = () => {
 		var aux = this.state.pushArray;
-		for(var i = 0; i < aux.length; i++) { 
+		for (var i = 0; i < aux.length; i++) {
 			console.log(i);
-			console.log(aux[i]); 
+			console.log(aux[i]);
 		}
 	}
 
@@ -92,7 +129,7 @@ class Board extends React.Component {
 		var aux = new Array(this.state.pushArray.length);
 		aux[0] = lastCanvas;
 		for (var i = 1; i < this.state.pushArray.length; i++) {
-			aux[i] = this.state.pushArray[i-1];
+			aux[i] = this.state.pushArray[i - 1];
 		}
 		this.setState({
 			pushArray: aux,
@@ -101,64 +138,64 @@ class Board extends React.Component {
 
 	removeUnusedElements = (lastCanvasImg) => {
 		var aux = this.state.pushArray;
-		var pos = aux.length - (aux.length - this.state.pos);		
+		var pos = aux.length - (aux.length - this.state.pos);
 		aux[0] = lastCanvasImg;
 		for (var i = 1; i < aux.length; i++) {
-			if (aux.length > pos+i) {
-				aux[i] = this.state.pushArray[pos+i-1]; 
+			if (aux.length > pos + i) {
+				aux[i] = this.state.pushArray[pos + i - 1];
 			}
 			else {
 				aux[i] = undefined;
-			}			
+			}
 		}
 		this.setState({
 			pushArray: aux,
 		})
-	}	
+	}
 
-	canvasUndo = () => {			
+	canvasUndo = () => {
 		var posAux = this.state.pos;
-		var aux = this.state.pushArray;		
+		var aux = this.state.pushArray;
 		if (posAux < aux.length) {
-			let ctx = this.state.canvas.getContext("2d");									
+			let ctx = this.state.canvas.getContext("2d");
 			let canvasImg = new Image();
 			posAux++;
-			if (aux[posAux] != undefined) {							
-        this.updateCanvas(aux[posAux]);
-			}						
-			this.setState({
-				pos: posAux,				
-			})
-		}
-		
-
-	}
-
-	canvasRedo = () => {		
-		var posAux = this.state.pos;
-		var aux = this.state.pushArray;		
-		if (posAux > 0) {
-			posAux--;
-			if (aux[posAux] != undefined) {												
-        this.updateCanvas(aux[posAux]);
+			if (aux[posAux] != undefined) {
+				this.updateCanvas(aux[posAux]);
 			}
 			this.setState({
-				pos: posAux,			
-			});		
-		}		
+				pos: posAux,
+			})
+		}
+
+
 	}
 
-  updateCanvas = (canvasImgReceived) => {
-		let ctx = this.state.canvas.getContext('2d');
-    var canvasImg = new Image();				
-    canvasImg.addEventListener('load', e => {
-      this.reset();
-      ctx.drawImage(canvasImg,0,0);					
-    });					
-    canvasImg.src = canvasImgReceived;												
-  }
+	canvasRedo = () => {
+		var posAux = this.state.pos;
+		var aux = this.state.pushArray;
+		if (posAux > 0) {
+			posAux--;
+			if (aux[posAux] != undefined) {
+				this.updateCanvas(aux[posAux]);
+			}
+			this.setState({
+				pos: posAux,
+			});
+		}
+	}
 
-	
+	updateCanvas = (canvasImgReceived) => {
+		let ctx = this.state.canvas.getContext('2d');
+		var canvasImg = new Image();
+		canvasImg.addEventListener('load', e => {
+			this.reset();
+			ctx.drawImage(canvasImg, 0, 0);
+		});
+		canvasImg.src = canvasImgReceived;
+	}
+
+
 
 	initializeRefs = () => {
 		this.canvas = React.createRef();
@@ -166,7 +203,7 @@ class Board extends React.Component {
 		this.toolEraser = React.createRef();
 		this.toolForm = React.createRef();
 		this.toolbar = React.createRef();
-    this.roomConnection = React.createRef();
+		this.roomConnection = React.createRef();
 
 	}
 
@@ -189,8 +226,20 @@ class Board extends React.Component {
 
 	mouseDown = event => {
 		this.toolbar.current.hideConfig();
+		let form = this.state.form;
+		if (this.state.tool == 'Form') {
+			form = this.state.formFactory.getForm('rectangle');
+			var pos = getMousePos(this.state.canvas, event);
+			console.log(pos)
+			form.actualizarPos(pos);
+			form.updateRect(this.state.ctx);
+		}
 		this.setMouseIsDown(true);
 		this.initializePaths(event);
+		this.setState({ 
+			form: form 
+		})
+		this.reset(this.state.gctx);
 	}
 
 	setMouseIsDown = (value) => {
@@ -199,7 +248,6 @@ class Board extends React.Component {
 
 	initializePaths = (event) => {
 		this.initializePathBrush(event);
-		this.initializePathForm(event);
 		this.initializePathEraser(event);
 	}
 
@@ -227,7 +275,8 @@ class Board extends React.Component {
 		if (this.state.tool == 'Form') {
 			var pos = getMousePos(this.state.canvas, event);
 			this.state.form.actualizarPos(pos);
-			this.state.form.draw();			
+			this.state.form.updateRect(this.state.ctx);
+			this.state.form.draw('canvas');
 		}
 		this.closePaths();
 	}
@@ -255,9 +304,8 @@ class Board extends React.Component {
 		}
 	}
 
-	reset = event => {
-		let ctx = this.state.canvas.getContext('2d');
-		ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);			
+	reset = (ctx) => {
+		ctx.clearRect(0, 0, this.state.canvas.width, this.state.canvas.height);
 	}
 
 	erase = event => {
@@ -316,21 +364,20 @@ class Board extends React.Component {
 					onMouseDown={(e) => this.mouseDown(e)}
 					onMouseUp={(e) => this.mouseUp(e)}
 					onMouseMove={(e) => this.mouseMove(e)}
-					onClick = { () => this.canvasPush() }										
+					onClick={() => this.canvasPush()}
 				></canvas>
 				<Toolbar ref={this.toolbar}
 					onToolModified={(toolObj, tool) => { this.handleToolModified(toolObj, tool); }}
 					onToolChange={(tool) => { this.handleToolChange(tool); }}
-					onResetCanvas={() => { this.reset(); }}
+					onResetCanvas={() => { this.reset(this.state.ctx); }}
 					onFormChanged={(form) => { this.changeForm(form); }}
 				/>
-        <RoomConnection 
-          ref={this.roomConnection} 
-          room={this.state.room}
-          onCanvasUpdate={(canvasImg) => {this.updateCanvas(canvasImg);}}
-        />
-      />				
-      </div>
+				<RoomConnection
+					ref={this.roomConnection}
+					room={this.state.room}
+					onCanvasUpdate={(canvasImg) => { this.updateCanvas(canvasImg); }}
+				/>
+			</div>
 
 		);
 	}
