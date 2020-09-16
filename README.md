@@ -1,4 +1,4 @@
-##Easiest setup
+## Easiest setup
 
 `npm install`
 
